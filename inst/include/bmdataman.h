@@ -231,8 +231,6 @@ inline arma::vec find_ties(const arma::vec& x){
   return bmdataman::bmms_setdiff(partresult, minusone1);
 }
 
-
-////
 inline arma::vec pnorm01_vec(const arma::vec& x, int lower=1, int logged=0){
   /*arma::vec p(x.n_elem);
    for(unsigned int i = 0; i<x.n_elem; i++){

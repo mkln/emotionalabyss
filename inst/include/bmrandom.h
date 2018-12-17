@@ -10,7 +10,7 @@ using namespace bmtruncn;
 
 namespace bmrandom {
 
-inline arma::mat rndppll_mvnormal(int n, const arma::vec &mean, const arma::mat &sigma){
+inline arma::mat rndpp_mvnormal(int n, const arma::vec &mean, const arma::mat &sigma){
   int dimension = arma::size(mean)(0);
   arma::vec xtemp = arma::zeros(dimension);
   arma::mat outmat = arma::zeros(n, dimension);
@@ -25,6 +25,52 @@ inline arma::mat rndppll_mvnormal(int n, const arma::vec &mean, const arma::mat 
     outmat.row(i) = (mean + cholsigma * xtemp).t();
   }
   return outmat;
+}
+
+
+inline arma::mat rndpp_mvnormal1(int n, const arma::vec &mean, const arma::mat &sigma){
+  int dimension = arma::size(mean)(0);
+  arma::vec xtemp = arma::zeros(dimension);
+  arma::mat outmat = arma::zeros(n, dimension);
+  arma::mat cholsigma = arma::chol(sigma, "lower");
+  for(int i=0; i<n; i++){
+    //for(int j=0; j<dimension; j++){
+    //  xtemp(j) = rndpp_normal(0.0, 1.0, mt);
+    //}
+    xtemp = Rcpp::rnorm(dimension, 0.0, 1.0);
+    //clog << arma::det(sigma) << endl;
+    outmat.row(i) = (mean + cholsigma * xtemp).t();
+  }
+  return outmat;
+}
+
+inline arma::mat rndpp_mvnormal2(int n, const arma::vec& mu, const arma::mat& sigma) {
+  int ncols = sigma.n_cols;
+  arma::mat Y = arma::randn(n, ncols);
+  //Y.randn();
+  return arma::repmat(mu, 1, n).t() + Y * arma::chol(sigma);
+}
+
+inline arma::mat rndpp_mvnormal3(int n, const arma::vec &mean, const arma::mat &sigma){
+  int dimension = mean.n_elem;
+  arma::mat outmat = arma::zeros(dimension, n);
+  arma::mat cholsigma = arma::chol(sigma, "lower");
+  arma::mat xtemp = (arma::randn(n, dimension)).t();
+  arma::mat term2 = cholsigma * xtemp;
+  for(int i=0; i<n; i++){
+    outmat.col(i) = mean + term2.col(i);
+  }
+  return outmat.t();
+}
+
+inline arma::mat rndpp_stdmvnormal(int n, int dimension){
+  arma::vec xtemp = arma::zeros(dimension);
+  arma::mat outmat = arma::zeros(dimension, n);
+#pragma omp parallel for num_threads(NUM_THREADS)
+  for(int i=0; i<n; i++){
+    outmat.col(i) = arma::randn(dimension);
+  }
+  return outmat.t();
 }
 
 // sample n elements from 0:vsize-1 with no replacement
@@ -119,21 +165,6 @@ inline double rndpp_normal(const double& mean, const double& sigma)
   return R::rnorm(mean, sigma);
 }
 
-inline arma::mat rndpp_mvnormal(int n, const arma::vec &mean, const arma::mat &sigma){
-  int dimension = arma::size(mean)(0);
-  arma::vec xtemp = arma::zeros(dimension);
-  arma::mat outmat = arma::zeros(n, dimension);
-  arma::mat cholsigma = arma::chol(sigma, "lower");
-  for(int i=0; i<n; i++){
-    //for(int j=0; j<dimension; j++){
-    //  xtemp(j) = rndpp_normal(0.0, 1.0, mt);
-    //}
-    xtemp = Rcpp::rnorm(dimension, 0.0, 1.0);
-    //clog << arma::det(sigma) << endl;
-    outmat.row(i) = (mean + cholsigma * xtemp).t();
-  }
-  return outmat;
-}
 
 //' Sample from Truncated Normal using Botev (2017)
 //' 
@@ -149,6 +180,7 @@ inline arma::mat mvtruncnormal(const arma::vec& mean,
                                const arma::mat& Sig, int n){
   arma::mat meanmat = arma::zeros(mean.n_elem, n);
   arma::mat truncraw = mvrandn_cpp(l_in-mean, u_in-mean, Sig, n);
+#pragma omp parallel for num_threads(NUM_THREADS)
   for(unsigned int i=0; i<n; i++){
     meanmat.col(i) = mean + truncraw.col(i);
   }
@@ -173,40 +205,13 @@ inline arma::mat mvtruncnormal_eye1(const arma::vec& mean,
   return mean+truncraw;
 }
 
-inline arma::mat rndpp_mvnormal2(int n, const arma::vec& mu, const arma::mat& sigma) {
-  int ncols = sigma.n_cols;
-  arma::mat Y = arma::randn(n, ncols);
-  //Y.randn();
-  return arma::repmat(mu, 1, n).t() + Y * arma::chol(sigma);
-}
-
-inline arma::mat rndpp_mvnormalnew(int n, const arma::vec &mean, const arma::mat &sigma){
-  int dimension = mean.n_elem;
-  arma::mat outmat = arma::zeros(dimension, n);
-  arma::mat cholsigma = arma::chol(sigma, "lower");
-  arma::mat xtemp = (arma::randn(n, dimension)).t();
-  arma::mat term2 = cholsigma * xtemp;
-  for(int i=0; i<n; i++){
-    outmat.col(i) = mean + term2.col(i);
-  }
-  return outmat.t();
-}
-
-inline arma::mat rndpp_stdmvnormal(int n, int dimension){
-  arma::vec xtemp = arma::zeros(dimension);
-  arma::mat outmat = arma::zeros(n, dimension);
-  for(int i=0; i<n; i++){
-    xtemp = Rcpp::rnorm(dimension, 0.0, 1.0);
-    outmat.row(i) = xtemp.t();
-  }
-  return outmat;
-}
 
 inline arma::mat rndpp_mvt(int n, const arma::vec &mu, const arma::mat &sigma, double df){
   double w=1.0;
   arma::mat Z = rndpp_stdmvnormal(n, mu.n_elem);
   arma::mat cholsigma = arma::chol(sigma, "lower");
   arma::mat AZ = Z;
+#pragma omp parallel for num_threads(NUM_THREADS)
   for(int i=0; i<AZ.n_rows; i++){
     w = sqrt( df / R::rchisq(df) );
     AZ.row(i) = (mu + w * (cholsigma * Z.row(i).t())).t();

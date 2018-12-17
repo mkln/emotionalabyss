@@ -6,6 +6,207 @@
 
 using namespace Rcpp;
 
+// splitsub_to_splitmask
+arma::mat splitsub_to_splitmask(const arma::field<arma::mat>& splits, int p1, int p2);
+RcppExport SEXP _emotionalabyss_splitsub_to_splitmask(SEXP splitsSEXP, SEXP p1SEXP, SEXP p2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::field<arma::mat>& >::type splits(splitsSEXP);
+    Rcpp::traits::input_parameter< int >::type p1(p1SEXP);
+    Rcpp::traits::input_parameter< int >::type p2(p2SEXP);
+    rcpp_result_gen = Rcpp::wrap(splitsub_to_splitmask(splits, p1, p2));
+    return rcpp_result_gen;
+END_RCPP
+}
+// splitmask_to_splitsub
+arma::field<arma::mat> splitmask_to_splitsub(const arma::mat& splitmask);
+RcppExport SEXP _emotionalabyss_splitmask_to_splitsub(SEXP splitmaskSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type splitmask(splitmaskSEXP);
+    rcpp_result_gen = Rcpp::wrap(splitmask_to_splitsub(splitmask));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mask_onesplit
+arma::mat mask_onesplit(const arma::mat& startmat, const arma::vec& onesplit, int seq);
+RcppExport SEXP _emotionalabyss_mask_onesplit(SEXP startmatSEXP, SEXP onesplitSEXP, SEXP seqSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type startmat(startmatSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type onesplit(onesplitSEXP);
+    Rcpp::traits::input_parameter< int >::type seq(seqSEXP);
+    rcpp_result_gen = Rcpp::wrap(mask_onesplit(startmat, onesplit, seq));
+    return rcpp_result_gen;
+END_RCPP
+}
+// splitsub_to_groupmask_blocks
+arma::mat splitsub_to_groupmask_blocks(const arma::mat& splits, int p1, int p2);
+RcppExport SEXP _emotionalabyss_splitsub_to_groupmask_blocks(SEXP splitsSEXP, SEXP p1SEXP, SEXP p2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type splits(splitsSEXP);
+    Rcpp::traits::input_parameter< int >::type p1(p1SEXP);
+    Rcpp::traits::input_parameter< int >::type p2(p2SEXP);
+    rcpp_result_gen = Rcpp::wrap(splitsub_to_groupmask_blocks(splits, p1, p2));
+    return rcpp_result_gen;
+END_RCPP
+}
+// row_intersection
+arma::mat row_intersection(const arma::mat& mat1, const arma::mat& mat2);
+RcppExport SEXP _emotionalabyss_row_intersection(SEXP mat1SEXP, SEXP mat2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type mat1(mat1SEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type mat2(mat2SEXP);
+    rcpp_result_gen = Rcpp::wrap(row_intersection(mat1, mat2));
+    return rcpp_result_gen;
+END_RCPP
+}
+// row_difference
+arma::mat row_difference(const arma::mat& mat1, const arma::mat& mat2);
+RcppExport SEXP _emotionalabyss_row_difference(SEXP mat1SEXP, SEXP mat2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type mat1(mat1SEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type mat2(mat2SEXP);
+    rcpp_result_gen = Rcpp::wrap(row_difference(mat1, mat2));
+    return rcpp_result_gen;
+END_RCPP
+}
+// splitsub_to_groupmask
+arma::mat splitsub_to_groupmask(arma::field<arma::mat> splits, int p1, int p2);
+RcppExport SEXP _emotionalabyss_splitsub_to_groupmask(SEXP splitsSEXP, SEXP p1SEXP, SEXP p2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::field<arma::mat> >::type splits(splitsSEXP);
+    Rcpp::traits::input_parameter< int >::type p1(p1SEXP);
+    Rcpp::traits::input_parameter< int >::type p2(p2SEXP);
+    rcpp_result_gen = Rcpp::wrap(splitsub_to_groupmask(splits, p1, p2));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mat_unique
+arma::vec mat_unique(const arma::mat& A);
+RcppExport SEXP _emotionalabyss_mat_unique(SEXP ASEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    rcpp_result_gen = Rcpp::wrap(mat_unique(A));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mask_oneval
+arma::mat mask_oneval(const arma::mat& A, const arma::mat& mask, int val);
+RcppExport SEXP _emotionalabyss_mask_oneval(SEXP ASEXP, SEXP maskSEXP, SEXP valSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type mask(maskSEXP);
+    Rcpp::traits::input_parameter< int >::type val(valSEXP);
+    rcpp_result_gen = Rcpp::wrap(mask_oneval(A, mask, val));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mask_oneval_sum
+double mask_oneval_sum(const arma::mat& A, const arma::mat& mask, int val);
+RcppExport SEXP _emotionalabyss_mask_oneval_sum(SEXP ASEXP, SEXP maskSEXP, SEXP valSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type mask(maskSEXP);
+    Rcpp::traits::input_parameter< int >::type val(valSEXP);
+    rcpp_result_gen = Rcpp::wrap(mask_oneval_sum(A, mask, val));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mask_cube_slice
+double mask_cube_slice(const arma::cube& C, int slice, const arma::mat& mask, int val);
+RcppExport SEXP _emotionalabyss_mask_cube_slice(SEXP CSEXP, SEXP sliceSEXP, SEXP maskSEXP, SEXP valSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::cube& >::type C(CSEXP);
+    Rcpp::traits::input_parameter< int >::type slice(sliceSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type mask(maskSEXP);
+    Rcpp::traits::input_parameter< int >::type val(valSEXP);
+    rcpp_result_gen = Rcpp::wrap(mask_cube_slice(C, slice, mask, val));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mat_to_vec_by_region
+arma::vec mat_to_vec_by_region(const arma::mat& A, const arma::mat& mask, const arma::vec& unique_regions);
+RcppExport SEXP _emotionalabyss_mat_to_vec_by_region(SEXP ASEXP, SEXP maskSEXP, SEXP unique_regionsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type mask(maskSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type unique_regions(unique_regionsSEXP);
+    rcpp_result_gen = Rcpp::wrap(mat_to_vec_by_region(A, mask, unique_regions));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cube_to_mat_by_region
+arma::mat cube_to_mat_by_region(const arma::cube& C, const arma::mat& mask, const arma::vec& unique_regions);
+RcppExport SEXP _emotionalabyss_cube_to_mat_by_region(SEXP CSEXP, SEXP maskSEXP, SEXP unique_regionsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::cube& >::type C(CSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type mask(maskSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type unique_regions(unique_regionsSEXP);
+    rcpp_result_gen = Rcpp::wrap(cube_to_mat_by_region(C, mask, unique_regions));
+    return rcpp_result_gen;
+END_RCPP
+}
+// unmask_vector
+arma::mat unmask_vector(const arma::vec& beta, const arma::vec& regions, const arma::mat& mask);
+RcppExport SEXP _emotionalabyss_unmask_vector(SEXP betaSEXP, SEXP regionsSEXP, SEXP maskSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type regions(regionsSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type mask(maskSEXP);
+    rcpp_result_gen = Rcpp::wrap(unmask_vector(beta, regions, mask));
+    return rcpp_result_gen;
+END_RCPP
+}
+// splitmask_focus
+arma::mat splitmask_focus(const arma::mat& mask_of_splits, const arma::vec& onesplit, int radius_int);
+RcppExport SEXP _emotionalabyss_splitmask_focus(SEXP mask_of_splitsSEXP, SEXP onesplitSEXP, SEXP radius_intSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type mask_of_splits(mask_of_splitsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type onesplit(onesplitSEXP);
+    Rcpp::traits::input_parameter< int >::type radius_int(radius_intSEXP);
+    rcpp_result_gen = Rcpp::wrap(splitmask_focus(mask_of_splits, onesplit, radius_int));
+    return rcpp_result_gen;
+END_RCPP
+}
+// number_availables
+int number_availables(const arma::mat& splitmask_focus);
+RcppExport SEXP _emotionalabyss_number_availables(SEXP splitmask_focusSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type splitmask_focus(splitmask_focusSEXP);
+    rcpp_result_gen = Rcpp::wrap(number_availables(splitmask_focus));
+    return rcpp_result_gen;
+END_RCPP
+}
 // setdiff
 arma::vec setdiff(const arma::vec& x, const arma::vec& y);
 RcppExport SEXP _emotionalabyss_setdiff(SEXP xSEXP, SEXP ySEXP) {
@@ -203,16 +404,212 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rndppll_mvnormal
-arma::mat rndppll_mvnormal(int n, const arma::vec& mean, const arma::mat& sigma);
-RcppExport SEXP _emotionalabyss_rndppll_mvnormal(SEXP nSEXP, SEXP meanSEXP, SEXP sigmaSEXP) {
+// pnorm01_vec
+arma::vec pnorm01_vec(const arma::vec& x, int lower, int logged);
+RcppExport SEXP _emotionalabyss_pnorm01_vec(SEXP xSEXP, SEXP lowerSEXP, SEXP loggedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type mean(meanSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type sigma(sigmaSEXP);
-    rcpp_result_gen = Rcpp::wrap(rndppll_mvnormal(n, mean, sigma));
+    Rcpp::traits::input_parameter< const arma::vec& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type lower(lowerSEXP);
+    Rcpp::traits::input_parameter< int >::type logged(loggedSEXP);
+    rcpp_result_gen = Rcpp::wrap(pnorm01_vec(x, lower, logged));
+    return rcpp_result_gen;
+END_RCPP
+}
+// qnorm01_vec
+arma::vec qnorm01_vec(const arma::vec& x, int lower, int logged);
+RcppExport SEXP _emotionalabyss_qnorm01_vec(SEXP xSEXP, SEXP lowerSEXP, SEXP loggedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type lower(lowerSEXP);
+    Rcpp::traits::input_parameter< int >::type logged(loggedSEXP);
+    rcpp_result_gen = Rcpp::wrap(qnorm01_vec(x, lower, logged));
+    return rcpp_result_gen;
+END_RCPP
+}
+// log1p_vec
+arma::vec log1p_vec(const arma::vec& x);
+RcppExport SEXP _emotionalabyss_log1p_vec(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(log1p_vec(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// usetdiff
+arma::uvec usetdiff(const arma::uvec& x, const arma::uvec& y);
+RcppExport SEXP _emotionalabyss_usetdiff(SEXP xSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::uvec& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(usetdiff(x, y));
+    return rcpp_result_gen;
+END_RCPP
+}
+// split_struct_ratio
+double split_struct_ratio(arma::vec prop_split, arma::vec orig_split, int p, double param);
+RcppExport SEXP _emotionalabyss_split_struct_ratio(SEXP prop_splitSEXP, SEXP orig_splitSEXP, SEXP pSEXP, SEXP paramSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type prop_split(prop_splitSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type orig_split(orig_splitSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< double >::type param(paramSEXP);
+    rcpp_result_gen = Rcpp::wrap(split_struct_ratio(prop_split, orig_split, p, param));
+    return rcpp_result_gen;
+END_RCPP
+}
+// single_split
+arma::mat single_split(const arma::mat& Jcoarse, int where, int p);
+RcppExport SEXP _emotionalabyss_single_split(SEXP JcoarseSEXP, SEXP whereSEXP, SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type Jcoarse(JcoarseSEXP);
+    Rcpp::traits::input_parameter< int >::type where(whereSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(single_split(Jcoarse, where, p));
+    return rcpp_result_gen;
+END_RCPP
+}
+// single_split_new
+arma::mat single_split_new(const arma::mat& Jcoarse, int where, int p);
+RcppExport SEXP _emotionalabyss_single_split_new(SEXP JcoarseSEXP, SEXP whereSEXP, SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type Jcoarse(JcoarseSEXP);
+    Rcpp::traits::input_parameter< int >::type where(whereSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(single_split_new(Jcoarse, where, p));
+    return rcpp_result_gen;
+END_RCPP
+}
+// multi_split
+arma::mat multi_split(const arma::mat& Jcoarse, const arma::vec& where, int p);
+RcppExport SEXP _emotionalabyss_multi_split(SEXP JcoarseSEXP, SEXP whereSEXP, SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type Jcoarse(JcoarseSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type where(whereSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(multi_split(Jcoarse, where, p));
+    return rcpp_result_gen;
+END_RCPP
+}
+// multi_split_ones
+arma::mat multi_split_ones(const arma::vec& where, int p);
+RcppExport SEXP _emotionalabyss_multi_split_ones(SEXP whereSEXP, SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type where(whereSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(multi_split_ones(where, p));
+    return rcpp_result_gen;
+END_RCPP
+}
+// multi_split_ones_v2
+arma::mat multi_split_ones_v2(const arma::vec& where, int p);
+RcppExport SEXP _emotionalabyss_multi_split_ones_v2(SEXP whereSEXP, SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type where(whereSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(multi_split_ones_v2(where, p));
+    return rcpp_result_gen;
+END_RCPP
+}
+// split_fix
+arma::vec split_fix(const arma::field<arma::vec>& in_splits, int stage);
+RcppExport SEXP _emotionalabyss_split_fix(SEXP in_splitsSEXP, SEXP stageSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::field<arma::vec>& >::type in_splits(in_splitsSEXP);
+    Rcpp::traits::input_parameter< int >::type stage(stageSEXP);
+    rcpp_result_gen = Rcpp::wrap(split_fix(in_splits, stage));
+    return rcpp_result_gen;
+END_RCPP
+}
+// stage_fix
+arma::field<arma::vec> stage_fix(const arma::field<arma::vec>& in_splits);
+RcppExport SEXP _emotionalabyss_stage_fix(SEXP in_splitsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::field<arma::vec>& >::type in_splits(in_splitsSEXP);
+    rcpp_result_gen = Rcpp::wrap(stage_fix(in_splits));
+    return rcpp_result_gen;
+END_RCPP
+}
+// stretch_vec
+arma::vec stretch_vec(const arma::mat& locations, const arma::vec& base, int dim);
+RcppExport SEXP _emotionalabyss_stretch_vec(SEXP locationsSEXP, SEXP baseSEXP, SEXP dimSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type locations(locationsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type base(baseSEXP);
+    Rcpp::traits::input_parameter< int >::type dim(dimSEXP);
+    rcpp_result_gen = Rcpp::wrap(stretch_vec(locations, base, dim));
+    return rcpp_result_gen;
+END_RCPP
+}
+// reshaper
+arma::mat reshaper(const arma::field<arma::mat>& J_field, int s);
+RcppExport SEXP _emotionalabyss_reshaper(SEXP J_fieldSEXP, SEXP sSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::field<arma::mat>& >::type J_field(J_fieldSEXP);
+    Rcpp::traits::input_parameter< int >::type s(sSEXP);
+    rcpp_result_gen = Rcpp::wrap(reshaper(J_field, s));
+    return rcpp_result_gen;
+END_RCPP
+}
+// splits_truncate
+arma::field<arma::vec> splits_truncate(const arma::field<arma::vec>& splits, int k);
+RcppExport SEXP _emotionalabyss_splits_truncate(SEXP splitsSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::field<arma::vec>& >::type splits(splitsSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(splits_truncate(splits, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// splits_augmentation
+arma::field<arma::mat> splits_augmentation(const arma::field<arma::mat>& splits);
+RcppExport SEXP _emotionalabyss_splits_augmentation(SEXP splitsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::field<arma::mat>& >::type splits(splitsSEXP);
+    rcpp_result_gen = Rcpp::wrap(splits_augmentation(splits));
+    return rcpp_result_gen;
+END_RCPP
+}
+// merge_splits
+arma::field<arma::mat> merge_splits(const arma::field<arma::mat>& old_splits, const arma::field<arma::mat>& new_splits);
+RcppExport SEXP _emotionalabyss_merge_splits(SEXP old_splitsSEXP, SEXP new_splitsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::field<arma::mat>& >::type old_splits(old_splitsSEXP);
+    Rcpp::traits::input_parameter< const arma::field<arma::mat>& >::type new_splits(new_splitsSEXP);
+    rcpp_result_gen = Rcpp::wrap(merge_splits(old_splits, new_splits));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -229,6 +626,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rndpp_mvnormal1
+arma::mat rndpp_mvnormal1(int n, const arma::vec& mean, const arma::mat& sigma);
+RcppExport SEXP _emotionalabyss_rndpp_mvnormal1(SEXP nSEXP, SEXP meanSEXP, SEXP sigmaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type mean(meanSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type sigma(sigmaSEXP);
+    rcpp_result_gen = Rcpp::wrap(rndpp_mvnormal1(n, mean, sigma));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rndpp_mvnormal2
 arma::mat rndpp_mvnormal2(int n, const arma::vec& mu, const arma::mat& sigma);
 RcppExport SEXP _emotionalabyss_rndpp_mvnormal2(SEXP nSEXP, SEXP muSEXP, SEXP sigmaSEXP) {
@@ -242,21 +652,219 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rndpp_mvnormalnew
-arma::mat rndpp_mvnormalnew(int n, const arma::vec& mean, const arma::mat& sigma);
-RcppExport SEXP _emotionalabyss_rndpp_mvnormalnew(SEXP nSEXP, SEXP meanSEXP, SEXP sigmaSEXP) {
+// rndpp_mvnormal3
+arma::mat rndpp_mvnormal3(int n, const arma::vec& mean, const arma::mat& sigma);
+RcppExport SEXP _emotionalabyss_rndpp_mvnormal3(SEXP nSEXP, SEXP meanSEXP, SEXP sigmaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type mean(meanSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type sigma(sigmaSEXP);
-    rcpp_result_gen = Rcpp::wrap(rndpp_mvnormalnew(n, mean, sigma));
+    rcpp_result_gen = Rcpp::wrap(rndpp_mvnormal3(n, mean, sigma));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sample_index
+arma::uvec sample_index(const int& n, const int& vsize);
+RcppExport SEXP _emotionalabyss_sample_index(SEXP nSEXP, SEXP vsizeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const int& >::type vsize(vsizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(sample_index(n, vsize));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rndpp_unif_int
+int rndpp_unif_int(int maxi);
+RcppExport SEXP _emotionalabyss_rndpp_unif_int(SEXP maxiSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type maxi(maxiSEXP);
+    rcpp_result_gen = Rcpp::wrap(rndpp_unif_int(maxi));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sample_one_int
+int sample_one_int(const int& vsize);
+RcppExport SEXP _emotionalabyss_sample_one_int(SEXP vsizeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type vsize(vsizeSEXP);
+    rcpp_result_gen = Rcpp::wrap(sample_one_int(vsize));
+    return rcpp_result_gen;
+END_RCPP
+}
+// boolbern
+bool boolbern(double p);
+RcppExport SEXP _emotionalabyss_boolbern(SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(boolbern(p));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rndpp_discrete
+int rndpp_discrete(const arma::vec& probs);
+RcppExport SEXP _emotionalabyss_rndpp_discrete(SEXP probsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type probs(probsSEXP);
+    rcpp_result_gen = Rcpp::wrap(rndpp_discrete(probs));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rndpp_sample1
+int rndpp_sample1(const arma::vec& fromvec, const arma::vec& probs);
+RcppExport SEXP _emotionalabyss_rndpp_sample1(SEXP fromvecSEXP, SEXP probsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type fromvec(fromvecSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type probs(probsSEXP);
+    rcpp_result_gen = Rcpp::wrap(rndpp_sample1(fromvec, probs));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rndpp_sample1_comp
+int rndpp_sample1_comp(const arma::vec& x, int p, int current_split, double decay);
+RcppExport SEXP _emotionalabyss_rndpp_sample1_comp(SEXP xSEXP, SEXP pSEXP, SEXP current_splitSEXP, SEXP decaySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type current_split(current_splitSEXP);
+    Rcpp::traits::input_parameter< double >::type decay(decaySEXP);
+    rcpp_result_gen = Rcpp::wrap(rndpp_sample1_comp(x, p, current_split, decay));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rndpp_shuffle
+arma::vec rndpp_shuffle(arma::vec x);
+RcppExport SEXP _emotionalabyss_rndpp_shuffle(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(rndpp_shuffle(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rndpp_bern
+double rndpp_bern(double p);
+RcppExport SEXP _emotionalabyss_rndpp_bern(SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(rndpp_bern(p));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rndpp_gamma
+double rndpp_gamma(const double& alpha, const double& beta);
+RcppExport SEXP _emotionalabyss_rndpp_gamma(SEXP alphaSEXP, SEXP betaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const double& >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const double& >::type beta(betaSEXP);
+    rcpp_result_gen = Rcpp::wrap(rndpp_gamma(alpha, beta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rndpp_normal
+double rndpp_normal(const double& mean, const double& sigma);
+RcppExport SEXP _emotionalabyss_rndpp_normal(SEXP meanSEXP, SEXP sigmaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const double& >::type mean(meanSEXP);
+    Rcpp::traits::input_parameter< const double& >::type sigma(sigmaSEXP);
+    rcpp_result_gen = Rcpp::wrap(rndpp_normal(mean, sigma));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mvtruncnormal
+arma::mat mvtruncnormal(const arma::vec& mean, const arma::vec& l_in, const arma::vec& u_in, const arma::mat& Sig, int n);
+RcppExport SEXP _emotionalabyss_mvtruncnormal(SEXP meanSEXP, SEXP l_inSEXP, SEXP u_inSEXP, SEXP SigSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type mean(meanSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type l_in(l_inSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type u_in(u_inSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Sig(SigSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(mvtruncnormal(mean, l_in, u_in, Sig, n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mvtruncnormal_eye1
+arma::mat mvtruncnormal_eye1(const arma::vec& mean, const arma::vec& l_in, const arma::vec& u_in);
+RcppExport SEXP _emotionalabyss_mvtruncnormal_eye1(SEXP meanSEXP, SEXP l_inSEXP, SEXP u_inSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type mean(meanSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type l_in(l_inSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type u_in(u_inSEXP);
+    rcpp_result_gen = Rcpp::wrap(mvtruncnormal_eye1(mean, l_in, u_in));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rndpp_stdmvnormal
+arma::mat rndpp_stdmvnormal(int n, int dimension);
+RcppExport SEXP _emotionalabyss_rndpp_stdmvnormal(SEXP nSEXP, SEXP dimensionSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type dimension(dimensionSEXP);
+    rcpp_result_gen = Rcpp::wrap(rndpp_stdmvnormal(n, dimension));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rndpp_mvt
+arma::mat rndpp_mvt(int n, const arma::vec& mu, const arma::mat& sigma, double df);
+RcppExport SEXP _emotionalabyss_rndpp_mvt(SEXP nSEXP, SEXP muSEXP, SEXP sigmaSEXP, SEXP dfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< double >::type df(dfSEXP);
+    rcpp_result_gen = Rcpp::wrap(rndpp_mvt(n, mu, sigma, df));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_emotionalabyss_splitsub_to_splitmask", (DL_FUNC) &_emotionalabyss_splitsub_to_splitmask, 3},
+    {"_emotionalabyss_splitmask_to_splitsub", (DL_FUNC) &_emotionalabyss_splitmask_to_splitsub, 1},
+    {"_emotionalabyss_mask_onesplit", (DL_FUNC) &_emotionalabyss_mask_onesplit, 3},
+    {"_emotionalabyss_splitsub_to_groupmask_blocks", (DL_FUNC) &_emotionalabyss_splitsub_to_groupmask_blocks, 3},
+    {"_emotionalabyss_row_intersection", (DL_FUNC) &_emotionalabyss_row_intersection, 2},
+    {"_emotionalabyss_row_difference", (DL_FUNC) &_emotionalabyss_row_difference, 2},
+    {"_emotionalabyss_splitsub_to_groupmask", (DL_FUNC) &_emotionalabyss_splitsub_to_groupmask, 3},
+    {"_emotionalabyss_mat_unique", (DL_FUNC) &_emotionalabyss_mat_unique, 1},
+    {"_emotionalabyss_mask_oneval", (DL_FUNC) &_emotionalabyss_mask_oneval, 3},
+    {"_emotionalabyss_mask_oneval_sum", (DL_FUNC) &_emotionalabyss_mask_oneval_sum, 3},
+    {"_emotionalabyss_mask_cube_slice", (DL_FUNC) &_emotionalabyss_mask_cube_slice, 4},
+    {"_emotionalabyss_mat_to_vec_by_region", (DL_FUNC) &_emotionalabyss_mat_to_vec_by_region, 3},
+    {"_emotionalabyss_cube_to_mat_by_region", (DL_FUNC) &_emotionalabyss_cube_to_mat_by_region, 3},
+    {"_emotionalabyss_unmask_vector", (DL_FUNC) &_emotionalabyss_unmask_vector, 3},
+    {"_emotionalabyss_splitmask_focus", (DL_FUNC) &_emotionalabyss_splitmask_focus, 3},
+    {"_emotionalabyss_number_availables", (DL_FUNC) &_emotionalabyss_number_availables, 1},
     {"_emotionalabyss_setdiff", (DL_FUNC) &_emotionalabyss_setdiff, 2},
     {"_emotionalabyss_X2Dgrid", (DL_FUNC) &_emotionalabyss_X2Dgrid, 2},
     {"_emotionalabyss_X2Dgrid_alt", (DL_FUNC) &_emotionalabyss_X2Dgrid_alt, 2},
@@ -274,10 +882,42 @@ static const R_CallMethodDef CallEntries[] = {
     {"_emotionalabyss_find_avail", (DL_FUNC) &_emotionalabyss_find_avail, 2},
     {"_emotionalabyss_find_first_unique", (DL_FUNC) &_emotionalabyss_find_first_unique, 1},
     {"_emotionalabyss_find_ties", (DL_FUNC) &_emotionalabyss_find_ties, 1},
-    {"_emotionalabyss_rndppll_mvnormal", (DL_FUNC) &_emotionalabyss_rndppll_mvnormal, 3},
+    {"_emotionalabyss_pnorm01_vec", (DL_FUNC) &_emotionalabyss_pnorm01_vec, 3},
+    {"_emotionalabyss_qnorm01_vec", (DL_FUNC) &_emotionalabyss_qnorm01_vec, 3},
+    {"_emotionalabyss_log1p_vec", (DL_FUNC) &_emotionalabyss_log1p_vec, 1},
+    {"_emotionalabyss_usetdiff", (DL_FUNC) &_emotionalabyss_usetdiff, 2},
+    {"_emotionalabyss_split_struct_ratio", (DL_FUNC) &_emotionalabyss_split_struct_ratio, 4},
+    {"_emotionalabyss_single_split", (DL_FUNC) &_emotionalabyss_single_split, 3},
+    {"_emotionalabyss_single_split_new", (DL_FUNC) &_emotionalabyss_single_split_new, 3},
+    {"_emotionalabyss_multi_split", (DL_FUNC) &_emotionalabyss_multi_split, 3},
+    {"_emotionalabyss_multi_split_ones", (DL_FUNC) &_emotionalabyss_multi_split_ones, 2},
+    {"_emotionalabyss_multi_split_ones_v2", (DL_FUNC) &_emotionalabyss_multi_split_ones_v2, 2},
+    {"_emotionalabyss_split_fix", (DL_FUNC) &_emotionalabyss_split_fix, 2},
+    {"_emotionalabyss_stage_fix", (DL_FUNC) &_emotionalabyss_stage_fix, 1},
+    {"_emotionalabyss_stretch_vec", (DL_FUNC) &_emotionalabyss_stretch_vec, 3},
+    {"_emotionalabyss_reshaper", (DL_FUNC) &_emotionalabyss_reshaper, 2},
+    {"_emotionalabyss_splits_truncate", (DL_FUNC) &_emotionalabyss_splits_truncate, 2},
+    {"_emotionalabyss_splits_augmentation", (DL_FUNC) &_emotionalabyss_splits_augmentation, 1},
+    {"_emotionalabyss_merge_splits", (DL_FUNC) &_emotionalabyss_merge_splits, 2},
     {"_emotionalabyss_rndpp_mvnormal", (DL_FUNC) &_emotionalabyss_rndpp_mvnormal, 3},
+    {"_emotionalabyss_rndpp_mvnormal1", (DL_FUNC) &_emotionalabyss_rndpp_mvnormal1, 3},
     {"_emotionalabyss_rndpp_mvnormal2", (DL_FUNC) &_emotionalabyss_rndpp_mvnormal2, 3},
-    {"_emotionalabyss_rndpp_mvnormalnew", (DL_FUNC) &_emotionalabyss_rndpp_mvnormalnew, 3},
+    {"_emotionalabyss_rndpp_mvnormal3", (DL_FUNC) &_emotionalabyss_rndpp_mvnormal3, 3},
+    {"_emotionalabyss_sample_index", (DL_FUNC) &_emotionalabyss_sample_index, 2},
+    {"_emotionalabyss_rndpp_unif_int", (DL_FUNC) &_emotionalabyss_rndpp_unif_int, 1},
+    {"_emotionalabyss_sample_one_int", (DL_FUNC) &_emotionalabyss_sample_one_int, 1},
+    {"_emotionalabyss_boolbern", (DL_FUNC) &_emotionalabyss_boolbern, 1},
+    {"_emotionalabyss_rndpp_discrete", (DL_FUNC) &_emotionalabyss_rndpp_discrete, 1},
+    {"_emotionalabyss_rndpp_sample1", (DL_FUNC) &_emotionalabyss_rndpp_sample1, 2},
+    {"_emotionalabyss_rndpp_sample1_comp", (DL_FUNC) &_emotionalabyss_rndpp_sample1_comp, 4},
+    {"_emotionalabyss_rndpp_shuffle", (DL_FUNC) &_emotionalabyss_rndpp_shuffle, 1},
+    {"_emotionalabyss_rndpp_bern", (DL_FUNC) &_emotionalabyss_rndpp_bern, 1},
+    {"_emotionalabyss_rndpp_gamma", (DL_FUNC) &_emotionalabyss_rndpp_gamma, 2},
+    {"_emotionalabyss_rndpp_normal", (DL_FUNC) &_emotionalabyss_rndpp_normal, 2},
+    {"_emotionalabyss_mvtruncnormal", (DL_FUNC) &_emotionalabyss_mvtruncnormal, 5},
+    {"_emotionalabyss_mvtruncnormal_eye1", (DL_FUNC) &_emotionalabyss_mvtruncnormal_eye1, 3},
+    {"_emotionalabyss_rndpp_stdmvnormal", (DL_FUNC) &_emotionalabyss_rndpp_stdmvnormal, 2},
+    {"_emotionalabyss_rndpp_mvt", (DL_FUNC) &_emotionalabyss_rndpp_mvt, 4},
     {NULL, NULL, 0}
 };
 

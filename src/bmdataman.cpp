@@ -90,3 +90,24 @@ arma::uvec find_first_unique(const arma::vec& x){
 arma::vec find_ties(const arma::vec& x){
   return bmdataman::find_ties(x);
 }
+
+//[[Rcpp::export]] 
+arma::vec pnorm01_vec(const arma::vec& x, int lower=1, int logged=0){
+  return bmdataman::pnorm01_vec(x, lower, logged);
+}
+
+//[[Rcpp::export]] 
+arma::vec qnorm01_vec(const arma::vec& x, int lower=1, int logged=0){
+  return bmdataman::qnorm01_vec(x, lower, logged);
+}
+
+//[[Rcpp::export]] 
+arma::vec log1p_vec(const arma::vec& x){
+  return bmdataman::log1p_vec(x);
+}
+
+//[[Rcpp::export]] 
+arma::uvec usetdiff(const arma::uvec& x, const arma::uvec& y) {
+  return bmdataman::usetdiff(x, y);
+}
+

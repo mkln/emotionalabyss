@@ -1,12 +1,12 @@
 #ifndef RCPP_bm2d
 #define RCPP_bm2d
 
-#include <Rcpp.h>
 #include <RcppArmadillo.h>
 #include <random>
 #include <ctime>
 #include <math.h>
 #include <cstdlib>
+#include "bmfuncs.h" 
 
 using namespace std;
 
@@ -51,7 +51,8 @@ inline arma::field<arma::mat> splitmask_to_splitsub(const arma::mat& splitmask){
 
 // from a starting grouping mask, split the relevant region 
 // using the new split onesplit. for BLOCKS, not voronoi
-inline arma::mat mask_onesplit(arma::mat startmat, arma::vec onesplit, int seq){
+inline arma::mat mask_onesplit(const arma::mat& startmat, 
+                               const arma::vec& onesplit, int seq){
   int p1 = startmat.n_rows;
   int p2 = startmat.n_cols;
   //int maxval = startmat.max();
@@ -116,7 +117,7 @@ inline arma::mat row_intersection(const arma::mat& mat1, const arma::mat& mat2){
   }
 }
 
-inline arma::mat row_difference(arma::mat mat1, const arma::mat& mat2){
+inline arma::mat row_difference(const arma::mat& mat1, const arma::mat& mat2){
   arma::mat diff = -1*arma::zeros(mat1.n_rows, 2);
   int c=0;
   for(unsigned int i=0; i<mat1.n_rows; i++){
@@ -156,7 +157,7 @@ inline arma::mat splitsub_to_groupmask(arma::field<arma::mat> splits, int p1, in
     } 
   }
   
-  splits = mxfuncs::splits_augmentation(splits);
+  splits = bmfuncs::splits_augmentation(splits);
   
   //cout << splitted << endl;
   // other levels
@@ -228,7 +229,8 @@ inline double mask_cube_slice(const arma::cube& C, int slice, const arma::mat& m
 }
 
 // transform a regressor matrix to a vector using grouping mask as coarsening
-inline arma::vec mat_to_vec_by_region(const arma::mat& A, const arma::mat& mask, arma::vec unique_regions){
+inline arma::vec mat_to_vec_by_region(const arma::mat& A, const arma::mat& mask, 
+                                      const arma::vec& unique_regions){
   //arma::vec unique_regions = mat_unique(mask);
   int n_unique_regions = unique_regions.n_elem;
   arma::vec vectorized_mat = arma::zeros(n_unique_regions);
@@ -239,7 +241,8 @@ inline arma::vec mat_to_vec_by_region(const arma::mat& A, const arma::mat& mask,
 }
 
 // using a grouping mask, transforma a cube to a matrix
-inline arma::mat cube_to_mat_by_region(const arma::cube& C, const arma::mat& mask, arma::vec unique_regions){
+inline arma::mat cube_to_mat_by_region(const arma::cube& C, const arma::mat& mask, 
+                                       const arma::vec& unique_regions){
   // cube is assumed dimension (p1, p2, n)
   int n_unique_regions = unique_regions.n_elem;
   arma::mat matricized_cube = arma::zeros(C.n_slices, n_unique_regions);

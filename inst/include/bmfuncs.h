@@ -1,12 +1,12 @@
 #ifndef RCPP_bmfuncs
 #define RCPP_bmfuncs
 
-#include <Rcpp.h>
 #include <RcppArmadillo.h>
 #include <random>
 #include <ctime>
 #include <math.h>
 #include <cstdlib>
+#include "bmdataman.h"
 
 using namespace std;
 
@@ -19,7 +19,7 @@ inline double split_struct_ratio(arma::vec prop_split, arma::vec orig_split, int
   return 1.0; 
 }
 
-inline arma::mat single_split(arma::mat Jcoarse, int where, int p){
+inline arma::mat single_split(const arma::mat& Jcoarse, int where, int p){
   int which_row = where;
   int which_col = arma::conv_to<int>::from(arma::find(Jcoarse.row(which_row), 1, "first"));
   
@@ -52,7 +52,8 @@ inline arma::mat single_split_new(const arma::mat& Jcoarse, int where, int p){
   return splitted;
 }
 
-inline arma::mat multi_split(arma::mat Jcoarse, arma::vec where, int p){
+inline arma::mat multi_split(const arma::mat& Jcoarse, 
+                             const arma::vec& where, int p){
   //int p = arma::accu(Jcoarse);
   //int c = Jcoarse.n_cols;
   arma::vec excluding(1);
@@ -149,13 +150,13 @@ inline arma::mat multi_split_ones_v2(const arma::vec& where, int p){
   return result;
 }
 
-inline arma::vec split_fix(arma::field<arma::vec>& in_splits, int stage){
+inline arma::vec split_fix(const arma::field<arma::vec>& in_splits, int stage){
   arma::vec splits_if_any = in_splits(stage)(arma::find(in_splits(stage)!=-1));
   return splits_if_any;
   //cout << "OUT SPLITS " << in_splits << endl;
 }
 
-inline arma::field<arma::vec> stage_fix(arma::field<arma::vec>& in_splits){
+inline arma::field<arma::vec> stage_fix(const arma::field<arma::vec>& in_splits){
   //cout << "IN SPLITS " << in_splits << endl;
   //cout << "theoretical number of stages : " << in_splits.n_elem << endl;
   int n_stages = 0;
@@ -195,7 +196,7 @@ inline arma::vec stretch_vec(const arma::mat& locations, const arma::vec& base, 
 }
 
 
-inline arma::mat reshaper(arma::field<arma::mat> J_field, int s){
+inline arma::mat reshaper(const arma::field<arma::mat>& J_field, int s){
   arma::mat stretcher = (J_field(s).t() * J_field(s-1));
   arma::mat normalizer = bmdataman::col_sums(J_field(s));
   //stretcher.transform( [](double val) { return (val>0 ? 1 : 0); } );
@@ -205,7 +206,7 @@ inline arma::mat reshaper(arma::field<arma::mat> J_field, int s){
   return(stretcher);
 }
 
-inline arma::field<arma::vec> splits_truncate(arma::field<arma::vec> splits, int k){
+inline arma::field<arma::vec> splits_truncate(const arma::field<arma::vec>& splits, int k){
   int k_effective = splits.n_elem > k ? k : splits.n_elem;
   if(k_effective<1){
     k_effective=1;
@@ -217,7 +218,7 @@ inline arma::field<arma::vec> splits_truncate(arma::field<arma::vec> splits, int
   return splits_new;
 }
 
-inline arma::field<arma::mat> splits_augmentation(arma::field<arma::mat> splits){
+inline arma::field<arma::mat> splits_augmentation(const arma::field<arma::mat>& splits){
   arma::field<arma::mat> splits_augment(splits.n_elem);
   // append previous splits to currents
   splits_augment(0) = splits(0);
@@ -227,7 +228,8 @@ inline arma::field<arma::mat> splits_augmentation(arma::field<arma::mat> splits)
   return splits_augment;
 }
 
-inline arma::field<arma::mat> merge_splits(arma::field<arma::mat>& old_splits, arma::field<arma::mat> new_splits){
+inline arma::field<arma::mat> merge_splits(const arma::field<arma::mat>& old_splits, 
+                                           const arma::field<arma::mat>& new_splits){
   arma::field<arma::mat> splits(old_splits.n_elem);
   for(unsigned int s = 0; s<new_splits.n_elem; s++){
     splits(s) = arma::join_vert(old_splits(s), new_splits(s));

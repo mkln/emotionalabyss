@@ -208,7 +208,8 @@ inline arma::mat gradpsi_cpp(const arma::vec& y, const arma::mat& L,
 }
 
 
-inline arma::vec armasolve(arma::mat A, arma::vec grad){
+inline arma::vec armasolve(const arma::mat& A, 
+                           arma::vec grad){
   return arma::solve(A, -grad);
 }
 
