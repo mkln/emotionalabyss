@@ -32,6 +32,22 @@ arma::mat multi_split_ones_v2(const arma::vec& where, int p){
   return bmfuncs::multi_split_ones_v2(where, p);
 }
 
+/*
+//[[Rcpp::export]] 
+arma::vec break_ones(int pre, int thisbig, int where, int post){
+  return bmfuncs::break_ones(pre, thisbig, where, post);
+}
+
+//[[Rcpp::export]]
+arma::vec break_existing(arma::vec starting, int where){
+  return bmfuncs::break_existing(starting, where);
+}
+  
+//[[Rcpp::export]]
+arma::mat decomp_identi(const arma::field<arma::vec>& where, int p){
+  return bmfuncs::decomp_identi(where, p);
+}
+*/
 //[[Rcpp::export]]
 arma::vec split_fix(const arma::field<arma::vec>& in_splits, int stage){
   return bmfuncs::split_fix(in_splits, stage);
@@ -66,4 +82,22 @@ arma::field<arma::mat> splits_augmentation(const arma::field<arma::mat>& splits)
 arma::field<arma::mat> merge_splits(const arma::field<arma::mat>& old_splits, 
                                            const arma::field<arma::mat>& new_splits){
   return bmfuncs::merge_splits(old_splits, new_splits);
+}
+
+//[[Rcpp::export]]
+arma::field<arma::mat> Ares(const arma::mat& L1, const arma::mat& L2, const arma::mat& L)
+{
+  return bmfuncs::Ares(L1, L2, L);
+}
+
+//[[Rcpp::export]]
+arma::vec update_scale(const arma::mat& Di, 
+                              const arma::mat& D1,
+                              const arma::mat& D2,
+                              const arma::field<arma::mat>& A,
+                              const arma::mat& X1,
+                              const arma::mat& X2,
+                              const arma::vec& theta1,
+                              const arma::vec& theta2){
+  return bmfuncs::update_scale(Di, D1, D2, A, X1, X2, theta1, theta2);
 }

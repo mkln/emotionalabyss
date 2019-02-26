@@ -58,8 +58,18 @@ int rndpp_sample1(const arma::vec& fromvec, const arma::vec& probs){
 }
 
 //[[Rcpp::export]] 
-int rndpp_sample1_comp(const arma::vec& x, int p, int current_split, double decay=4.0){
-  return bmrandom::rndpp_sample1_comp(x, p, current_split, decay);
+arma::vec pweight(const arma::vec& avail, int p, int current_split, int lev, int tot){
+  return bmrandom::pweight(avail, p, current_split, lev, tot);
+}
+  
+//[[Rcpp::export]] 
+int rndpp_sample1_comp_old(const arma::vec& x, int p, int current_split, double decay=4.0){
+  return bmrandom::rndpp_sample1_comp_old(x, p, current_split, decay);
+}
+
+//[[Rcpp::export]] 
+int rndpp_sample1_comp(const arma::vec& x, int p, int current_split, int lev, double tot=4.0){
+  return bmrandom::rndpp_sample1_comp(x, p, current_split, lev, tot);
 }
 
 //[[Rcpp::export]] 

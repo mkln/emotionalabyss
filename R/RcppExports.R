@@ -201,6 +201,14 @@ merge_splits <- function(old_splits, new_splits) {
     .Call(`_emotionalabyss_merge_splits`, old_splits, new_splits)
 }
 
+Ares <- function(L1, L2, L) {
+    .Call(`_emotionalabyss_Ares`, L1, L2, L)
+}
+
+update_scale <- function(Di, D1, D2, A, X1, X2, theta1, theta2) {
+    .Call(`_emotionalabyss_update_scale`, Di, D1, D2, A, X1, X2, theta1, theta2)
+}
+
 rndpp_mvnormal <- function(n, mean, sigma) {
     .Call(`_emotionalabyss_rndpp_mvnormal`, n, mean, sigma)
 }
@@ -241,8 +249,16 @@ rndpp_sample1 <- function(fromvec, probs) {
     .Call(`_emotionalabyss_rndpp_sample1`, fromvec, probs)
 }
 
-rndpp_sample1_comp <- function(x, p, current_split, decay = 4.0) {
-    .Call(`_emotionalabyss_rndpp_sample1_comp`, x, p, current_split, decay)
+pweight <- function(avail, p, current_split, lev, tot) {
+    .Call(`_emotionalabyss_pweight`, avail, p, current_split, lev, tot)
+}
+
+rndpp_sample1_comp_old <- function(x, p, current_split, decay = 4.0) {
+    .Call(`_emotionalabyss_rndpp_sample1_comp_old`, x, p, current_split, decay)
+}
+
+rndpp_sample1_comp <- function(x, p, current_split, lev, tot = 4.0) {
+    .Call(`_emotionalabyss_rndpp_sample1_comp`, x, p, current_split, lev, tot)
 }
 
 rndpp_shuffle <- function(x) {

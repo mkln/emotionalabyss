@@ -111,7 +111,7 @@ inline int rndpp_sample1(const arma::vec& fromvec, const arma::vec& probs){
   return fromvec( rndpp_discrete(probs) );
 }
 
-inline int rndpp_sample1_comp(const arma::vec& x, int p, int current_split, double decay=4.0){
+inline int rndpp_sample1_comp_old(const arma::vec& x, int p, int current_split, double decay=4.0){
   /* vector x = current splits, p = how many in total
    * this returns 1 split out of the complement 
    * decay controls how far the proposed jump is going to be from the current
@@ -126,7 +126,41 @@ inline int rndpp_sample1_comp(const arma::vec& x, int p, int current_split, doub
   if(current_split == -1){
     probweights = arma::ones(arma::size(avail));
   } else {
-    probweights = arma::exp(arma::abs(avail - current_split) * log(1.0/decay));
+    //probweights = arma::exp(arma::abs(avail - current_split) * log(1.0/decay));
+    probweights = arma::exp(-decay*pow(avail - current_split, 2));
+  }
+  if(avail.n_elem > 0){
+    int out = rndpp_sample1(avail, probweights); //Rcpp::RcppArmadillo::sample(avail, 1, true, probweights); 
+    return out;//(0);
+  } else {
+    return -1;
+  }
+}
+
+inline arma::vec pweight(const arma::vec& avail, int p, int current_split, int lev, int tot){
+  double base = log(p+.0)/log(tot);
+  double spacing = pow((p+.0) / (tot * pow(base,lev+.0)), 2);
+  arma::vec prob = arma::exp(-.5/spacing * pow(avail - current_split -.5, 2));
+  return prob/arma::accu(prob);
+}
+
+inline int rndpp_sample1_comp(const arma::vec& x, int p, int current_split, int lev, double tot=4.0){
+  /* vector x = current splits, p = how many in total
+   * this returns 1 split out of the complement 
+   * decay controls how far the proposed jump is going to be from the current
+   * decay=1 corresponds to uniform prob on all availables
+   * if current_split=-1 then pick uniformly
+   */
+  //double decay = 5.0;
+  arma::vec all = arma::linspace(0, p-1, p);
+  arma::vec avail = bmdataman::bmms_setdiff(all, x);
+  //cout << avail << endl;
+  arma::vec probweights;
+  if(current_split == -1){
+    probweights = arma::ones(arma::size(avail));
+  } else {
+    //probweights = arma::exp(arma::abs(avail - current_split) * log(1.0/decay));
+    probweights = pweight(avail, p, current_split, lev+1, tot+1);
   }
   if(avail.n_elem > 0){
     int out = rndpp_sample1(avail, probweights); //Rcpp::RcppArmadillo::sample(avail, 1, true, probweights); 

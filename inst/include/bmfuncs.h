@@ -110,6 +110,8 @@ inline arma::mat multi_split(const arma::mat& Jcoarse,
   return temp;
 }
 
+
+
 inline arma::mat multi_split_ones(const arma::vec& where, int p){
   int wsize = where.n_elem;
   arma::mat result = arma::zeros(p, wsize+1);
@@ -128,7 +130,6 @@ inline arma::mat multi_split_ones(const arma::vec& where, int p){
   }
   return result;
 }
-
 
 inline arma::mat multi_split_ones_v2(const arma::vec& where, int p){
   int wsize = where.n_elem;
@@ -235,6 +236,28 @@ inline arma::field<arma::mat> merge_splits(const arma::field<arma::mat>& old_spl
     splits(s) = arma::join_vert(old_splits(s), new_splits(s));
   }
   return splits;
+}
+
+inline arma::field<arma::mat> Ares(const arma::mat& L1, const arma::mat& L2, const arma::mat& L){
+  // returns A = [A1 A2]' matrix such that [L1 L2] A = L
+  arma::field<arma::mat> result(2);
+  arma::mat A = arma::pinv(arma::join_horiz(L1, L2)) * L;
+  result(0) = A.rows(0, L1.n_cols-1);
+  result(1) = A.rows(L1.n_cols, A.n_rows-1);
+  return result;
+} 
+
+inline arma::vec update_scale(const arma::mat& Di, 
+                              const arma::mat& D1,
+                              const arma::mat& D2,
+                              const arma::field<arma::mat>& A,
+                              const arma::mat& X1,
+                              const arma::mat& X2,
+                              const arma::vec& theta1,
+                              const arma::vec& theta2){
+ // run model at some scale, get residuals and run another model at another scale
+ // whats the implied regression coefficient at the new scale?
+ return Di * ( (A(0).t()*D1.t() + A(1).t()*X2.t()*X1) * theta1 + A(1).t()*D2*theta2 );
 }
 
 }
