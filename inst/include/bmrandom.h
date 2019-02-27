@@ -111,7 +111,7 @@ inline int rndpp_sample1(const arma::vec& fromvec, const arma::vec& probs){
   return fromvec( rndpp_discrete(probs) );
 }
 
-inline int rndpp_sample1_comp_old(const arma::vec& x, int p, int current_split, double decay=4.0){
+inline int rndpp_sample1_comp_alt(const arma::vec& x, int p, int current_split, double decay=4.0){
   /* vector x = current splits, p = how many in total
    * this returns 1 split out of the complement 
    * decay controls how far the proposed jump is going to be from the current
@@ -138,7 +138,7 @@ inline int rndpp_sample1_comp_old(const arma::vec& x, int p, int current_split, 
 }
 
 inline arma::vec pweight(const arma::vec& avail, int p, int current_split, int lev, int tot){
-  double base = log(p+.0)/log(tot);
+  double base = log(p+.0)/log(tot+.0);
   double spacing = pow((p+.0) / (tot * pow(base,lev+.0)), 2);
   arma::vec prob = arma::exp(-.5/spacing * pow(avail - current_split -.5, 2));
   return prob/arma::accu(prob);
