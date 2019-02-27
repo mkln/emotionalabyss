@@ -63,8 +63,8 @@ arma::vec pweight(const arma::vec& avail, int p, int current_split, int lev, int
 }
   
 //[[Rcpp::export]] 
-int rndpp_sample1_comp_old(const arma::vec& x, int p, int current_split, double decay=4.0){
-  return bmrandom::rndpp_sample1_comp_old(x, p, current_split, decay);
+int rndpp_sample1_comp_alt(const arma::vec& x, int p, int current_split, double decay=4.0){
+  return bmrandom::rndpp_sample1_comp_alt(x, p, current_split, decay);
 }
 
 //[[Rcpp::export]] 

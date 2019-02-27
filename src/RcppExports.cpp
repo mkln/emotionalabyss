@@ -779,9 +779,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rndpp_sample1_comp_old
-int rndpp_sample1_comp_old(const arma::vec& x, int p, int current_split, double decay);
-RcppExport SEXP _emotionalabyss_rndpp_sample1_comp_old(SEXP xSEXP, SEXP pSEXP, SEXP current_splitSEXP, SEXP decaySEXP) {
+// rndpp_sample1_comp_alt
+int rndpp_sample1_comp_alt(const arma::vec& x, int p, int current_split, double decay);
+RcppExport SEXP _emotionalabyss_rndpp_sample1_comp_alt(SEXP xSEXP, SEXP pSEXP, SEXP current_splitSEXP, SEXP decaySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -789,7 +789,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type p(pSEXP);
     Rcpp::traits::input_parameter< int >::type current_split(current_splitSEXP);
     Rcpp::traits::input_parameter< double >::type decay(decaySEXP);
-    rcpp_result_gen = Rcpp::wrap(rndpp_sample1_comp_old(x, p, current_split, decay));
+    rcpp_result_gen = Rcpp::wrap(rndpp_sample1_comp_alt(x, p, current_split, decay));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -973,7 +973,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_emotionalabyss_rndpp_discrete", (DL_FUNC) &_emotionalabyss_rndpp_discrete, 1},
     {"_emotionalabyss_rndpp_sample1", (DL_FUNC) &_emotionalabyss_rndpp_sample1, 2},
     {"_emotionalabyss_pweight", (DL_FUNC) &_emotionalabyss_pweight, 5},
-    {"_emotionalabyss_rndpp_sample1_comp_old", (DL_FUNC) &_emotionalabyss_rndpp_sample1_comp_old, 4},
+    {"_emotionalabyss_rndpp_sample1_comp_alt", (DL_FUNC) &_emotionalabyss_rndpp_sample1_comp_alt, 4},
     {"_emotionalabyss_rndpp_sample1_comp", (DL_FUNC) &_emotionalabyss_rndpp_sample1_comp, 5},
     {"_emotionalabyss_rndpp_shuffle", (DL_FUNC) &_emotionalabyss_rndpp_shuffle, 1},
     {"_emotionalabyss_rndpp_bern", (DL_FUNC) &_emotionalabyss_rndpp_bern, 1},

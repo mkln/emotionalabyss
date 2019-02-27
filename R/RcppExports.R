@@ -253,8 +253,8 @@ pweight <- function(avail, p, current_split, lev, tot) {
     .Call(`_emotionalabyss_pweight`, avail, p, current_split, lev, tot)
 }
 
-rndpp_sample1_comp_old <- function(x, p, current_split, decay = 4.0) {
-    .Call(`_emotionalabyss_rndpp_sample1_comp_old`, x, p, current_split, decay)
+rndpp_sample1_comp_alt <- function(x, p, current_split, decay = 4.0) {
+    .Call(`_emotionalabyss_rndpp_sample1_comp_alt`, x, p, current_split, decay)
 }
 
 rndpp_sample1_comp <- function(x, p, current_split, lev, tot = 4.0) {
