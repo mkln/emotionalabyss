@@ -87,6 +87,7 @@ public:
   arma::vec mu;
   arma::mat Sigma;
   double mutSimu;
+  arma::mat Px;
   
   arma::mat inv_var_post;
   
@@ -103,6 +104,7 @@ public:
   BayesLM(const arma::vec&, const arma::mat&, bool);
   BayesLM(arma::vec, arma::mat, double);
   BayesLM(const arma::vec&, const arma::mat&, double, bool);
+  BayesLM(const arma::vec&, const arma::mat&, double, bool, double);
   BayesLM(arma::vec, arma::mat, arma::mat);
 };
 
@@ -260,11 +262,12 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX, bool fixs=fals
   beta = 0.0;
   
   inv_var_post = Mi + XtX;
-  Sigma = arma::inv_sympd(inv_var_post);
+  Sigma = arma::inv_sympd(inv_var_post); 
   mu = Sigma * (Mi*m + X.t()*ycenter);
   mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
   
   sigmasq = 1.0;
+  Px = X * Sigma * X.t(); 
   b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
   
   reg_mean = icept + X * b;
@@ -297,6 +300,7 @@ inline BayesLM::BayesLM(arma::vec yy, arma::mat XX, double lambda_in = 1){
   
   inv_var_post = Mi + XtX;
   Sigma = arma::inv_sympd(inv_var_post);
+  //Px = X * Sigma * X.t(); 
   mu = Sigma * (Mi*m + X.t()*ycenter);
   mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
   
@@ -348,10 +352,60 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX, double lambda_
     alpha_n = 0.0;
     beta_n = 0.0;
     sigmasq = 1.0;
+    Px = X * Sigma * X.t();
   }
   b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
   reg_mean = icept + X * b;
 }
+
+
+inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX, 
+                        double lambda_in = 1, bool fixs=false,
+                        double sigmasqin=1.0){
+  fix_sigma = fixs;
+  y = yy;
+  X = XX;
+  n = y.n_elem;
+  p = X.n_cols;
+  //clog << arma::size(XX) << endl;
+  lambda = lambda_in;
+  XtX = X.t() * X;
+  
+  icept = arma::mean(y);
+  ycenter = y - icept;
+  
+  Ip = arma::eye(p,p);
+  m = arma::zeros(p);
+  //M = n*XtXi;
+  //clog << lambda << endl;
+  Mi = 1.0/log(1.0+n) * XtX + Ip * lambda;
+  mtMim = 0.0; //arma::conv_to<double>::from(m.t()*Mi*m);
+  
+  alpha = 2.1; // parametrization: a = mean^2 / variance + 2
+  beta = alpha-1;  //                  b = (mean^3 + mean*variance) / variance
+  
+  inv_var_post = Mi + XtX;
+  Sigma = arma::inv_sympd(inv_var_post);
+  mu = Sigma * (Mi*m + X.t()*ycenter);
+  
+  if(!fix_sigma) { 
+    yty = arma::conv_to<double>::from(ycenter.t()*ycenter);
+    mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
+    alpha_n = alpha + n/2.0;
+    beta_n = beta + 0.5*(mtMim - mutSimu + yty);
+    sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
+  } else { 
+    yty = 0.0;
+    mutSimu = 0.0;
+    alpha_n = 0.0;
+    beta_n = 0.0;
+    sigmasq = sigmasqin;
+    Px = X * Sigma * X.t(); 
+  }
+  b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
+  reg_mean = icept + X * b;
+}
+
 
 inline BayesLM::BayesLM(arma::vec yy, arma::mat XX, arma::mat MM){
   // specifying prior for regression coefficient variance
@@ -394,6 +448,7 @@ inline BayesLM::BayesLM(arma::vec yy, arma::mat XX, arma::mat MM){
     alpha_n = 0.0;
     beta_n = 0.0;
     sigmasq = 1.0;
+    Px = X * Sigma * X.t(); 
     b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
   }
   
@@ -413,23 +468,31 @@ inline void BayesLM::lambda_update(double lambda_new){
   
   Sigma = arma::inv_sympd(Mi + XtX);
   mu = Sigma * (Mi*m + X.t()*ycenter);
-  mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
   
-  alpha_n = alpha + n/2.0;
-  beta_n = beta + 0.5*(mtMim - mutSimu + yty);
+  if(!fix_sigma){
+    mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
+    
+    alpha_n = alpha + n/2.0;
+    beta_n = beta + 0.5*(mtMim - mutSimu + yty);
+    
+    sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
+    b = bmrandom::rndpp_mvt(1, mu, beta_n/alpha_n * Sigma/lambda, 2*alpha_n).t();
+  }
+  else {
+    Px = X * Sigma * X.t(); 
+    b = (bmrandom::rndpp_mvnormal2(1, mu, Sigma*sigmasq/lambda)).row(0).t();
+  }
   
-  sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
-  b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
   reg_mean = X * b;
 }
 
 inline void BayesLM::posterior(){
   sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
-  b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
+  b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq/lambda)).row(0).t();
 }
 
 inline void BayesLM::beta_sample(){
-  b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
+  b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq/lambda)).row(0).t();
   //b = bmrandom::rndpp_mvt(1, mu, beta_n/alpha_n * Sigma/lambda, 2*alpha_n).t(); //(bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq/lambda)).row(0).t();
 }
 
@@ -439,11 +502,16 @@ inline void BayesLM::chg_y(arma::vec& yy){
   ycenter = y - icept;
   yty = arma::conv_to<double>::from(ycenter.t()*ycenter);
   mu = Sigma * (Mi*m + X.t()*ycenter);
-  mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
-  beta_n = beta + 0.5*(mtMim - mutSimu + yty);
   
-  sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
-  b = bmrandom::rndpp_mvt(1, mu, beta_n/alpha_n * Sigma/lambda, 2*alpha_n).t(); //(bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq/lambda)).row(0).t();
+  if(!fix_sigma){
+    mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
+    beta_n = beta + 0.5*(mtMim - mutSimu + yty);
+    
+    sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
+    b = bmrandom::rndpp_mvt(1, mu, beta_n/alpha_n * Sigma/lambda, 2*alpha_n).t(); 
+  } else {
+    b = (bmrandom::rndpp_mvnormal2(1, mu, Sigma*sigmasq/lambda)).row(0).t();
+  }
   reg_mean = icept + X * b;
 }
 
@@ -455,20 +523,23 @@ inline void BayesLM::chg_data(arma::vec& yy, arma::mat& XX){
   p = X.n_cols;
   
   XtX = X.t() * X;
-  
   icept = arma::mean(y);
   ycenter = y - icept;
-  yty = arma::conv_to<double>::from(ycenter.t()*ycenter);
   
   Sigma = arma::inv_sympd(Mi + XtX);
   mu = Sigma * (Mi*m + X.t()*ycenter);
-  mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
   
-  alpha_n = alpha + n/2.0;
-  beta_n = beta + 0.5*(mtMim - mutSimu + yty);
-  
-  sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
-  b = bmrandom::rndpp_mvt(1, mu, beta_n/alpha_n * Sigma/lambda, 2*alpha_n).t(); //(bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq/lambda)).row(0).t();
+  if(!fix_sigma){
+    yty = arma::conv_to<double>::from(ycenter.t()*ycenter);
+    mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
+    alpha_n = alpha + n/2.0;
+    beta_n = beta + 0.5*(mtMim - mutSimu + yty);
+    sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
+    b = bmrandom::rndpp_mvt(1, mu, beta_n/alpha_n * Sigma/lambda, 2*alpha_n).t(); //(bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq/lambda)).row(0).t();
+  } else {
+    Px = X * Sigma * X.t(); 
+    b = (bmrandom::rndpp_mvnormal2(1, mu, Sigma*sigmasq/lambda)).row(0).t();
+  }
   reg_mean = icept + X * b;
 }
 

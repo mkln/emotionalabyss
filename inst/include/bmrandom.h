@@ -144,30 +144,28 @@ inline arma::vec pweight(const arma::vec& avail, int p, int current_split, int l
   return prob/arma::accu(prob);
 }
 
-inline int rndpp_sample1_comp(const arma::vec& x, int p, int current_split, int lev, double tot=4.0){
-  /* vector x = current splits, p = how many in total
+inline int rndpp_sample1_comp(const arma::vec& x, int npossible, int current_split, int lev, double tot=4.0){
+  /* vector x = current splits, npossible = how many in total
    * this returns 1 split out of the complement 
    * decay controls how far the proposed jump is going to be from the current
    * decay=1 corresponds to uniform prob on all availables
    * if current_split=-1 then pick uniformly
    */
   //double decay = 5.0;
-  arma::vec all = arma::linspace(0, p-1, p);
+  arma::vec all = arma::linspace(0, npossible-1, npossible);
   arma::vec avail = bmdataman::bmms_setdiff(all, x);
   //cout << avail << endl;
   arma::vec probweights;
   if(current_split == -1){
     probweights = arma::ones(arma::size(avail));
   } else {
-    //probweights = arma::exp(arma::abs(avail - current_split) * log(1.0/decay));
-    probweights = pweight(avail, p, current_split, lev+1, tot+1);
+    probweights = pweight(avail, npossible, current_split, lev+1, tot+1);
   }
+  int out=-1;
   if(avail.n_elem > 0){
-    int out = rndpp_sample1(avail, probweights); //Rcpp::RcppArmadillo::sample(avail, 1, true, probweights); 
+    out = rndpp_sample1(avail, probweights); 
     return out;//(0);
-  } else {
-    return -1;
-  }
+  } 
 }
 
 inline arma::vec rndpp_shuffle(arma::vec x){
