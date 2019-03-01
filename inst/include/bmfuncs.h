@@ -56,6 +56,8 @@ inline arma::mat multi_split(const arma::mat& Jcoarse,
                              const arma::vec& where, int p){
   //int p = arma::accu(Jcoarse);
   //int c = Jcoarse.n_cols;
+  
+  arma::vec unique_where = arma::unique(where);
   arma::vec excluding(1);
   arma::vec orig_cols_splitted = arma::zeros(Jcoarse.n_cols);
   arma::mat slice_upleft, slice_downright, upright, downleft, up, down, splitted;
@@ -63,8 +65,8 @@ inline arma::mat multi_split(const arma::mat& Jcoarse,
   arma::mat splitting_mat = Jcoarse;
   arma::mat temp(Jcoarse.n_rows, 0);
   //cout << Jcoarse << endl;
-  for(unsigned int w=0; w<where.n_elem; w++){
-    unsigned int which_row = where(w);
+  for(unsigned int w=0; w<unique_where.n_elem; w++){
+    unsigned int which_row = unique_where(w);
     //cout << "multi_split: inside loop. splitting row " << which_row << " of " << endl;
     //cout << Jcoarse << endl; 
     int which_col = arma::conv_to<int>::from(arma::find(Jcoarse.row(which_row), 1, "first"));
@@ -113,9 +115,10 @@ inline arma::mat multi_split(const arma::mat& Jcoarse,
 
 
 inline arma::mat multi_split_ones(const arma::vec& where, int p){
-  int wsize = where.n_elem;
+  arma::vec unique_where = arma::unique(where);
+  int wsize = unique_where.n_elem;
   arma::mat result = arma::zeros(p, wsize+1);
-  arma::vec wheresort = arma::sort(where);
+  arma::vec wheresort = arma::sort(unique_where);
   arma::vec whereadd = arma::zeros(wsize+2);
   whereadd(0) = -1;
   whereadd.subvec(1,wsize) = wheresort;
@@ -123,7 +126,7 @@ inline arma::mat multi_split_ones(const arma::vec& where, int p){
   arma::vec sizes = arma::diff(whereadd);
   //clog << sizes << endl;
   int rowcount = 0;
-  for(int i=0; i<where.n_elem+1; i++){
+  for(int i=0; i<unique_where.n_elem+1; i++){
     //clog << "from:" << rowcount << " to:" << rowcount+sizes(i) << " column:" << i << endl;
     result.submat(rowcount, i, rowcount+sizes(i)-1, i).fill(1);
     rowcount += sizes(i);
@@ -132,9 +135,10 @@ inline arma::mat multi_split_ones(const arma::vec& where, int p){
 }
 
 inline arma::mat multi_split_ones_v2(const arma::vec& where, int p){
-  int wsize = where.n_elem;
+  arma::vec unique_where = arma::unique(where);
+  int wsize = unique_where.n_elem;
   arma::mat result = arma::zeros(2, wsize+1);
-  arma::vec wheresort = arma::sort(where);
+  arma::vec wheresort = arma::sort(unique_where);
   arma::vec whereadd = arma::zeros(wsize+2);
   whereadd(0) = -1;
   whereadd.subvec(1,wsize) = wheresort;
@@ -142,7 +146,7 @@ inline arma::mat multi_split_ones_v2(const arma::vec& where, int p){
   arma::vec sizes = arma::diff(whereadd);
   //clog << sizes << endl;
   int rowcount = 0;
-  for(int i=0; i<where.n_elem+1; i++){
+  for(int i=0; i<wsize+1; i++){
     //clog << "from:" << rowcount << " to:" << rowcount+sizes(i) << " column:" << i << endl;
     result.submat(0,i,0,i) = rowcount;
     result.submat(1,i,1,i) = rowcount+sizes(i)-1;
