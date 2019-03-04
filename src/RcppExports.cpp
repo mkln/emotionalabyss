@@ -506,6 +506,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// multi_split_old
+arma::mat multi_split_old(const arma::mat& Jcoarse, const arma::vec& where, int p);
+RcppExport SEXP _emotionalabyss_multi_split_old(SEXP JcoarseSEXP, SEXP whereSEXP, SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type Jcoarse(JcoarseSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type where(whereSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(multi_split_old(Jcoarse, where, p));
+    return rcpp_result_gen;
+END_RCPP
+}
 // multi_split_ones
 arma::mat multi_split_ones(const arma::vec& where, int p);
 RcppExport SEXP _emotionalabyss_multi_split_ones(SEXP whereSEXP, SEXP pSEXP) {
@@ -951,6 +964,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_emotionalabyss_single_split", (DL_FUNC) &_emotionalabyss_single_split, 3},
     {"_emotionalabyss_single_split_new", (DL_FUNC) &_emotionalabyss_single_split_new, 3},
     {"_emotionalabyss_multi_split", (DL_FUNC) &_emotionalabyss_multi_split, 3},
+    {"_emotionalabyss_multi_split_old", (DL_FUNC) &_emotionalabyss_multi_split_old, 3},
     {"_emotionalabyss_multi_split_ones", (DL_FUNC) &_emotionalabyss_multi_split_ones, 2},
     {"_emotionalabyss_multi_split_ones_v2", (DL_FUNC) &_emotionalabyss_multi_split_ones_v2, 2},
     {"_emotionalabyss_split_fix", (DL_FUNC) &_emotionalabyss_split_fix, 2},

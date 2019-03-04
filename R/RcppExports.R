@@ -165,6 +165,10 @@ multi_split <- function(Jcoarse, where, p) {
     .Call(`_emotionalabyss_multi_split`, Jcoarse, where, p)
 }
 
+multi_split_old <- function(Jcoarse, where, p) {
+    .Call(`_emotionalabyss_multi_split_old`, Jcoarse, where, p)
+}
+
 multi_split_ones <- function(where, p) {
     .Call(`_emotionalabyss_multi_split_ones`, where, p)
 }

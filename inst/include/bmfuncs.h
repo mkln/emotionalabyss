@@ -52,7 +52,21 @@ inline arma::mat single_split_new(const arma::mat& Jcoarse, int where, int p){
   return splitted;
 }
 
-inline arma::mat multi_split(const arma::mat& Jcoarse, 
+inline arma::mat multi_split(const arma::vec& pones, const arma::vec& splits, int p){
+  arma::vec jumps = arma::zeros(p);
+  arma::mat splitted = arma::zeros(p, splits.n_elem+1);
+  for(unsigned int i=0; i<splits.n_elem; i++){
+    jumps(splits(i)+1) = 1;
+  }
+  jumps = arma::cumsum(jumps);
+  for(unsigned int i=0; i<jumps.n_elem; i++){ // splitted col = splitted(i) 
+    splitted(i, jumps(i)) = 1;
+  }
+  return splitted;
+}
+
+
+inline arma::mat multi_split_old(const arma::mat& Jcoarse, 
                              const arma::vec& where, int p){
   //int p = arma::accu(Jcoarse);
   //int c = Jcoarse.n_cols;

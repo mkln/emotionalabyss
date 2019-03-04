@@ -23,6 +23,12 @@ arma::mat multi_split(const arma::mat& Jcoarse,
 }
 
 //[[Rcpp::export]]
+arma::mat multi_split_old(const arma::mat& Jcoarse, 
+                      const arma::vec& where, int p){
+  return bmfuncs::multi_split_old(Jcoarse, where, p);
+}
+
+//[[Rcpp::export]]
 arma::mat multi_split_ones(const arma::vec& where, int p){
   return bmfuncs::multi_split_ones(where, p);
 }
