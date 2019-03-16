@@ -1,4 +1,5 @@
 #include "../inst/include/bmrandom.h"
+#include "../inst/include/bmtruncn.h"
 
 //[[Rcpp::export]] 
 arma::mat rndpp_mvnormal(int n, const arma::vec &mean, const arma::mat &sigma){
@@ -16,10 +17,6 @@ arma::mat rndpp_mvnormal2(int n, const arma::vec& mu, const arma::mat& sigma) {
   return bmrandom::rndpp_mvnormal2(n, mu, sigma);
 }
 
-//[[Rcpp::export]] 
-arma::mat rndpp_mvnormal3(int n, const arma::vec &mean, const arma::mat &sigma){
-  return bmrandom::rndpp_mvnormal3(n, mean, sigma);
-}
 
 // sample n elements from 0:vsize-1 with no replacement
 //[[Rcpp::export]] 
@@ -73,8 +70,13 @@ int rndpp_sample1_comp(const arma::vec& x, int p, int current_split, int lev, do
 }
 
 //[[Rcpp::export]] 
+arma::vec rndpp_sample(const arma::vec& x, int n){
+  return bmrandom::rndpp_sample(x, n);
+}
+
+//[[Rcpp::export]] 
 arma::vec rndpp_shuffle(arma::vec x){
-  return bmrandom::rndpp_shuffle(x);
+  return bmrandom::rndpp_sample(x, x.n_elem);
 }
 
 //[[Rcpp::export]] 
@@ -94,6 +96,17 @@ double rndpp_normal(const double& mean, const double& sigma)
   return bmrandom::rndpp_normal(mean, sigma);
 }
 
+//[[Rcpp::export]] 
+arma::mat rndpp_stdmvnormal(int n, int dimension){
+  return bmrandom::rndpp_stdmvnormal(n, dimension);
+}
+
+//[[Rcpp::export]] 
+arma::mat rndpp_mvt(int n, const arma::vec &mu, const arma::mat &sigma, double df){
+  return bmrandom::rndpp_mvt(n, mu, sigma, df);
+}
+
+
 //' Sample from Truncated Normal using Botev (2017)
 //' 
 //' @param mean A p-dimensional mean vector
@@ -104,9 +117,9 @@ double rndpp_normal(const double& mean, const double& sigma)
 //' @export
 //[[Rcpp::export]] 
 arma::mat mvtruncnormal(const arma::vec& mean, 
-                               const arma::vec& l_in, const arma::vec& u_in, 
-                               const arma::mat& Sig, int n){
-  return bmrandom::mvtruncnormal(mean, l_in, u_in, Sig, n);
+                        const arma::vec& l_in, const arma::vec& u_in, 
+                        const arma::mat& Sig, int n){
+  return bmtruncn::mvtruncnormal(mean, l_in, u_in, Sig, n);
 }
 
 //' Sample from Truncated and shifted Normal with Identity covariance
@@ -117,16 +130,6 @@ arma::mat mvtruncnormal(const arma::vec& mean,
 //' @export
 //[[Rcpp::export]] 
 arma::mat mvtruncnormal_eye1(const arma::vec& mean, 
-                                    const arma::vec& l_in, const arma::vec& u_in){
-  return bmrandom::mvtruncnormal_eye1(mean, l_in, u_in);
-}
-
-//[[Rcpp::export]] 
-arma::mat rndpp_stdmvnormal(int n, int dimension){
-  return bmrandom::rndpp_stdmvnormal(n, dimension);
-}
-
-//[[Rcpp::export]] 
-arma::mat rndpp_mvt(int n, const arma::vec &mu, const arma::mat &sigma, double df){
-  return bmrandom::rndpp_mvt(n, mu, sigma, df);
+                             const arma::vec& l_in, const arma::vec& u_in){
+  return bmtruncn::mvtruncnormal_eye1(mean, l_in, u_in);
 }

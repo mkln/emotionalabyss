@@ -225,10 +225,6 @@ rndpp_mvnormal2 <- function(n, mu, sigma) {
     .Call(`_emotionalabyss_rndpp_mvnormal2`, n, mu, sigma)
 }
 
-rndpp_mvnormal3 <- function(n, mean, sigma) {
-    .Call(`_emotionalabyss_rndpp_mvnormal3`, n, mean, sigma)
-}
-
 sample_index <- function(n, vsize) {
     .Call(`_emotionalabyss_sample_index`, n, vsize)
 }
@@ -265,6 +261,10 @@ rndpp_sample1_comp <- function(x, p, current_split, lev, tot = 4.0) {
     .Call(`_emotionalabyss_rndpp_sample1_comp`, x, p, current_split, lev, tot)
 }
 
+rndpp_sample <- function(x, n) {
+    .Call(`_emotionalabyss_rndpp_sample`, x, n)
+}
+
 rndpp_shuffle <- function(x) {
     .Call(`_emotionalabyss_rndpp_shuffle`, x)
 }
@@ -279,6 +279,14 @@ rndpp_gamma <- function(alpha, beta) {
 
 rndpp_normal <- function(mean, sigma) {
     .Call(`_emotionalabyss_rndpp_normal`, mean, sigma)
+}
+
+rndpp_stdmvnormal <- function(n, dimension) {
+    .Call(`_emotionalabyss_rndpp_stdmvnormal`, n, dimension)
+}
+
+rndpp_mvt <- function(n, mu, sigma, df) {
+    .Call(`_emotionalabyss_rndpp_mvt`, n, mu, sigma, df)
 }
 
 #' Sample from Truncated Normal using Botev (2017)
@@ -301,13 +309,5 @@ mvtruncnormal <- function(mean, l_in, u_in, Sig, n) {
 #' @export
 mvtruncnormal_eye1 <- function(mean, l_in, u_in) {
     .Call(`_emotionalabyss_mvtruncnormal_eye1`, mean, l_in, u_in)
-}
-
-rndpp_stdmvnormal <- function(n, dimension) {
-    .Call(`_emotionalabyss_rndpp_stdmvnormal`, n, dimension)
-}
-
-rndpp_mvt <- function(n, mu, sigma, df) {
-    .Call(`_emotionalabyss_rndpp_mvt`, n, mu, sigma, df)
 }
 

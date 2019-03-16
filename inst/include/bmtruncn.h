@@ -2,9 +2,11 @@
 #define RCPP_bmtruncn
 
 #include "bmdataman.h"
+#include "bmrandom.h"
+
 
 using namespace std;
-//using namespace bmdataman;
+using namespace bmrandom;
 
 namespace bmtruncn {
 
@@ -237,13 +239,13 @@ inline arma::vec ntail_cpp(const arma::vec& l, const arma::vec& u){
   arma::vec c = pow(l, 2)/2.0;
   int n = l.n_elem;
   arma::vec f = exp(c - pow(u, 2)/2.0) - 1.0;
-  arma::vec x = c - log(1 + arma::randu(n) % f);
-  arma::uvec I = arma::find(pow(arma::randu(n), 2) % x > c);
+  arma::vec x = c - log(1 + rndpp_runif(n) % f);
+  arma::uvec I = arma::find(pow(rndpp_runif(n), 2) % x > c);
   int d = I.n_elem;
   while(d > 0){
     arma::vec cy = c.elem(I);
-    arma::vec y = cy - log(1 + arma::randu(d) % f.elem(I));
-    arma::vec ruextract2 = pow(arma::randu(d),2);
+    arma::vec y = cy - log(1 + rndpp_runif(d) % f.elem(I));
+    arma::vec ruextract2 = pow(rndpp_runif(d),2);
     arma::uvec idx = arma::find(ruextract2 % y < cy);
     arma::uvec idx_c = arma::find(ruextract2 % y >= cy);
     x.elem(I.elem(idx)) = y.elem(idx);
@@ -255,13 +257,13 @@ inline arma::vec ntail_cpp(const arma::vec& l, const arma::vec& u){
 
 
 inline arma::vec trnd_cpp(const arma::vec& l, const arma::vec& u){
-  arma::vec x = arma::randn(l.n_elem);
+  arma::vec x = Rcpp::rnorm(l.n_elem, 0, 1);
   arma::uvec I = arma::find((x < l) + (x > u));
   int d = I.n_elem;
   while(d > 0){
     arma::vec ly = l.elem(I);
     arma::vec uy = u.elem(I);
-    arma::vec y = arma::randn(ly.n_elem);
+    arma::vec y = Rcpp::rnorm(ly.n_elem, 0, 1);
     arma::uvec idx = arma::find((y > ly)%(y < uy));
     arma::uvec idx_c = arma::find(1-(y > ly)%(y < uy));
     x.elem(I.elem(idx)) = y.elem(idx);
@@ -286,7 +288,7 @@ inline arma::vec tn_cpp(const arma::vec& l, const arma::vec& u){
     arma::vec tu = u.elem(I_c);
     arma::vec pl = bmdataman::pnorm01_vec(tl);
     arma::vec pu = bmdataman::pnorm01_vec(tu);
-    x.elem(I_c) = bmdataman::qnorm01_vec(pl + (pu - pl) % arma::randu(tl.n_elem));
+    x.elem(I_c) = bmdataman::qnorm01_vec(pl + (pu - pl) % rndpp_runif(tl.n_elem));
   }
   return x;
 }
@@ -399,7 +401,7 @@ inline arma::mat mvrandn_cpp(const arma::vec& l_in, const arma::vec& u_in,
     //clog << "boh" << endl;
     Z = mvnrnd_cpp(n, L, l, u, mu, logpr);
     //clog << "boh2" << endl;
-    arma::uvec idx = arma::find(-log(arma::randu(n)) > (psistar-logpr));
+    arma::uvec idx = arma::find(-log(rndpp_runif(n)) > (psistar-logpr));
     //clog << "boh3" << endl;
     rv = arma::join_horiz(rv, Z.cols(idx));
     accept = rv.n_cols;
@@ -421,6 +423,48 @@ inline arma::mat mvrandn_cpp(const arma::vec& l_in, const arma::vec& u_in,
   rv = rv.rows(order);
   return rv;
 }
+
+
+//' Sample from Truncated Normal using Botev (2017)
+//' 
+//' @param mean A p-dimensional mean vector
+//' @param l_in A p-dimensional vector of lower truncation limits (can be -Inf)
+//' @param u_in A p-dimensional vector of upper truncation limits (can be Inf)
+//' @param Sig A (p,p) covariance matrix.
+//' @param n number of samples to extract
+//' @export
+//[[Rcpp::export]]
+inline arma::mat mvtruncnormal(const arma::vec& mean, 
+                               const arma::vec& l_in, const arma::vec& u_in, 
+                               const arma::mat& Sig, int n){
+  arma::mat meanmat = arma::zeros(mean.n_elem, n);
+  arma::mat truncraw = mvrandn_cpp(l_in-mean, u_in-mean, Sig, n);
+#pragma omp parallel for num_threads(NUM_THREADS)
+  for(unsigned int i=0; i<n; i++){
+    meanmat.col(i) = mean + truncraw.col(i);
+  }
+  return meanmat;
+}
+
+//' Sample from Truncated and shifted Normal with Identity covariance
+//' 
+//' @param mean A p-dimensional mean vector
+//' @param l_in A p-dimensional vector of lower truncation limits (can be -Inf)
+//' @param u_in A p-dimensional vector of upper truncation limits (can be Inf)
+//' @export
+//[[Rcpp::export]]
+inline arma::mat mvtruncnormal_eye1(const arma::vec& mean, 
+                                    const arma::vec& l_in, const arma::vec& u_in){
+  int n = 1;
+  //arma::mat meanmat = arma::zeros(mean.n_elem, n);
+  arma::vec truncraw = arma::zeros(mean.n_elem);
+  truncraw = trandn_cpp(l_in - mean, u_in - mean);
+  //meanmat.col(0) = mean + truncraw;
+  
+  return mean+truncraw;
+}
+
+
 
 }
 

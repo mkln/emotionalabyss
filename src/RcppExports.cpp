@@ -696,19 +696,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rndpp_mvnormal3
-arma::mat rndpp_mvnormal3(int n, const arma::vec& mean, const arma::mat& sigma);
-RcppExport SEXP _emotionalabyss_rndpp_mvnormal3(SEXP nSEXP, SEXP meanSEXP, SEXP sigmaSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type mean(meanSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type sigma(sigmaSEXP);
-    rcpp_result_gen = Rcpp::wrap(rndpp_mvnormal3(n, mean, sigma));
-    return rcpp_result_gen;
-END_RCPP
-}
 // sample_index
 arma::uvec sample_index(const int& n, const int& vsize);
 RcppExport SEXP _emotionalabyss_sample_index(SEXP nSEXP, SEXP vsizeSEXP) {
@@ -821,6 +808,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rndpp_sample
+arma::vec rndpp_sample(const arma::vec& x, int n);
+RcppExport SEXP _emotionalabyss_rndpp_sample(SEXP xSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(rndpp_sample(x, n));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rndpp_shuffle
 arma::vec rndpp_shuffle(arma::vec x);
 RcppExport SEXP _emotionalabyss_rndpp_shuffle(SEXP xSEXP) {
@@ -867,6 +866,32 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rndpp_stdmvnormal
+arma::mat rndpp_stdmvnormal(int n, int dimension);
+RcppExport SEXP _emotionalabyss_rndpp_stdmvnormal(SEXP nSEXP, SEXP dimensionSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type dimension(dimensionSEXP);
+    rcpp_result_gen = Rcpp::wrap(rndpp_stdmvnormal(n, dimension));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rndpp_mvt
+arma::mat rndpp_mvt(int n, const arma::vec& mu, const arma::mat& sigma, double df);
+RcppExport SEXP _emotionalabyss_rndpp_mvt(SEXP nSEXP, SEXP muSEXP, SEXP sigmaSEXP, SEXP dfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< double >::type df(dfSEXP);
+    rcpp_result_gen = Rcpp::wrap(rndpp_mvt(n, mu, sigma, df));
+    return rcpp_result_gen;
+END_RCPP
+}
 // mvtruncnormal
 arma::mat mvtruncnormal(const arma::vec& mean, const arma::vec& l_in, const arma::vec& u_in, const arma::mat& Sig, int n);
 RcppExport SEXP _emotionalabyss_mvtruncnormal(SEXP meanSEXP, SEXP l_inSEXP, SEXP u_inSEXP, SEXP SigSEXP, SEXP nSEXP) {
@@ -892,32 +917,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type l_in(l_inSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type u_in(u_inSEXP);
     rcpp_result_gen = Rcpp::wrap(mvtruncnormal_eye1(mean, l_in, u_in));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rndpp_stdmvnormal
-arma::mat rndpp_stdmvnormal(int n, int dimension);
-RcppExport SEXP _emotionalabyss_rndpp_stdmvnormal(SEXP nSEXP, SEXP dimensionSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< int >::type dimension(dimensionSEXP);
-    rcpp_result_gen = Rcpp::wrap(rndpp_stdmvnormal(n, dimension));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rndpp_mvt
-arma::mat rndpp_mvt(int n, const arma::vec& mu, const arma::mat& sigma, double df);
-RcppExport SEXP _emotionalabyss_rndpp_mvt(SEXP nSEXP, SEXP muSEXP, SEXP sigmaSEXP, SEXP dfSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type mu(muSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< double >::type df(dfSEXP);
-    rcpp_result_gen = Rcpp::wrap(rndpp_mvt(n, mu, sigma, df));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -979,7 +978,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_emotionalabyss_rndpp_mvnormal", (DL_FUNC) &_emotionalabyss_rndpp_mvnormal, 3},
     {"_emotionalabyss_rndpp_mvnormal1", (DL_FUNC) &_emotionalabyss_rndpp_mvnormal1, 3},
     {"_emotionalabyss_rndpp_mvnormal2", (DL_FUNC) &_emotionalabyss_rndpp_mvnormal2, 3},
-    {"_emotionalabyss_rndpp_mvnormal3", (DL_FUNC) &_emotionalabyss_rndpp_mvnormal3, 3},
     {"_emotionalabyss_sample_index", (DL_FUNC) &_emotionalabyss_sample_index, 2},
     {"_emotionalabyss_rndpp_unif_int", (DL_FUNC) &_emotionalabyss_rndpp_unif_int, 1},
     {"_emotionalabyss_sample_one_int", (DL_FUNC) &_emotionalabyss_sample_one_int, 1},
@@ -989,14 +987,15 @@ static const R_CallMethodDef CallEntries[] = {
     {"_emotionalabyss_pweight", (DL_FUNC) &_emotionalabyss_pweight, 5},
     {"_emotionalabyss_rndpp_sample1_comp_alt", (DL_FUNC) &_emotionalabyss_rndpp_sample1_comp_alt, 4},
     {"_emotionalabyss_rndpp_sample1_comp", (DL_FUNC) &_emotionalabyss_rndpp_sample1_comp, 5},
+    {"_emotionalabyss_rndpp_sample", (DL_FUNC) &_emotionalabyss_rndpp_sample, 2},
     {"_emotionalabyss_rndpp_shuffle", (DL_FUNC) &_emotionalabyss_rndpp_shuffle, 1},
     {"_emotionalabyss_rndpp_bern", (DL_FUNC) &_emotionalabyss_rndpp_bern, 1},
     {"_emotionalabyss_rndpp_gamma", (DL_FUNC) &_emotionalabyss_rndpp_gamma, 2},
     {"_emotionalabyss_rndpp_normal", (DL_FUNC) &_emotionalabyss_rndpp_normal, 2},
-    {"_emotionalabyss_mvtruncnormal", (DL_FUNC) &_emotionalabyss_mvtruncnormal, 5},
-    {"_emotionalabyss_mvtruncnormal_eye1", (DL_FUNC) &_emotionalabyss_mvtruncnormal_eye1, 3},
     {"_emotionalabyss_rndpp_stdmvnormal", (DL_FUNC) &_emotionalabyss_rndpp_stdmvnormal, 2},
     {"_emotionalabyss_rndpp_mvt", (DL_FUNC) &_emotionalabyss_rndpp_mvt, 4},
+    {"_emotionalabyss_mvtruncnormal", (DL_FUNC) &_emotionalabyss_mvtruncnormal, 5},
+    {"_emotionalabyss_mvtruncnormal_eye1", (DL_FUNC) &_emotionalabyss_mvtruncnormal_eye1, 3},
     {NULL, NULL, 0}
 };
 

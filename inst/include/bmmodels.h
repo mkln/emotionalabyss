@@ -3,11 +3,7 @@
 
 #include "bmrandom.h"
 #include "bmdataman.h"
-//#include "bmfuncs.h"
 
-//using namespace bmdataman;
-//using namespace bmrandom;
-//using namespace bmfuncs;
 using namespace std;
 
 namespace bmmodels {
@@ -146,6 +142,7 @@ public:
   
   arma::mat inv_var_post;
   
+  arma::vec xb;
   arma::vec reg_mean;
   
   double yPxy;
@@ -208,29 +205,6 @@ public:
   arma::vec sigmasq_stored;
   
   VarSelMCMC(const arma::vec&, const arma::mat&, const arma::vec&, double, double, bool, int);
-};
-
-class ModularVS {
-public:
-  int K;
-  int mcmc;
-  
-  //std::vector<VSModule> varsel_modules;
-  
-  arma::vec y;
-  int n;
-  arma::field<arma::mat> Xall;
-  arma::vec resid;
-  
-  //ModularVS(const arma::vec&, const arma::field<arma::mat>&, int, double, arma::vec);
-  ModularVS(const arma::vec&, const arma::field<arma::mat>&, 
-            const arma::field<arma::vec>&,
-            int, arma::vec, arma::vec, bool);
-  
-  arma::mat intercept;
-  arma::field<arma::mat> beta_store;
-  arma::field<arma::mat> gamma_store;
-  arma::field<arma::vec> gamma_start;
 };
 
 inline BayesLM::BayesLM(){
@@ -547,16 +521,17 @@ inline BayesLMg::BayesLMg(){
   
 }
 
-inline BayesLMg::BayesLMg(const arma::vec& yy, const arma::mat& X, double gin, bool sampling=true, bool fixs = false){
+inline BayesLMg::BayesLMg(const arma::vec& yy, const arma::mat& Xin, double gin, bool sampling=true, bool fixs = false){
   fix_sigma = fixs;
   sampling_mcmc = sampling;
   
+  X = Xin;
   y = yy;
   n = y.n_elem;
   p = X.n_cols;
   
-  icept = arma::mean(y);
-  ycenter = y - icept;
+  
+  ycenter = y - arma::mean(y);
   g = gin;
   
   yty = arma::conv_to<double>::from(ycenter.t()*ycenter);
@@ -575,8 +550,8 @@ inline BayesLMg::BayesLMg(const arma::vec& yy, const arma::mat& X, double gin, b
       alpha = 0.0;
       beta = 0.0;
       sigmasq = 1.0;
-      b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
-      reg_mean = icept + X * b;
+      sample_beta();
+    
     } else {
       alpha = 2.1; // parametrization: a = mean^2 / variance + 2
       beta = alpha-1;  //                  b = (mean^3 + mean*variance) / variance
@@ -585,7 +560,7 @@ inline BayesLMg::BayesLMg(const arma::vec& yy, const arma::mat& X, double gin, b
       
       sample_sigmasq();
       sample_beta();
-      reg_mean = icept + X * b;
+      
     }
   }
   //yPxy = arma::conv_to<double>::from(y.t() * X * arma::inv_sympd(XtX) * X.t() * y);
@@ -593,7 +568,8 @@ inline BayesLMg::BayesLMg(const arma::vec& yy, const arma::mat& X, double gin, b
   marglik = get_marglik(fixs);
 };
 
-inline void BayesLMg::change_X(const arma::mat& X){
+inline void BayesLMg::change_X(const arma::mat& Xin){
+  X = Xin;
   p = X.n_cols;
   
   if(sampling_mcmc){
@@ -607,8 +583,7 @@ inline void BayesLMg::change_X(const arma::mat& X){
       alpha = 0.0;
       beta = 0.0;
       sigmasq = 1.0;
-      b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
-      reg_mean = icept + X * b;
+      sample_beta();
     } else {
       alpha = 2.1; // parametrization: a = mean^2 / variance + 2
       beta = alpha-1;  //                  b = (mean^3 + mean*variance) / variance
@@ -617,7 +592,6 @@ inline void BayesLMg::change_X(const arma::mat& X){
       
       sample_sigmasq();
       sample_beta();
-      reg_mean = icept + X * b;
     }
   }
   //yPxy = arma::conv_to<double>::from(y.t() * X * arma::inv_sympd(XtX) * X.t() * y);
@@ -628,6 +602,9 @@ inline void BayesLMg::change_X(const arma::mat& X){
 
 inline void BayesLMg::sample_beta(){
   b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
+  xb = X*b;
+  icept = arma::mean(y-xb);
+  reg_mean = icept + xb;
 }
 
 inline void BayesLMg::sample_sigmasq(){
@@ -689,7 +666,7 @@ inline void BayesSelect::change_X(const arma::mat& X){
 }
 
 inline VarSelMCMC::VarSelMCMC(const arma::vec& yy, const arma::mat& XX, const arma::vec& prior,
-                       double gin=-1.0, double model_prior_par=1, bool fixsigma=false, int iter=1){
+                              double gin=-1.0, double model_prior_par=1, bool fixsigma=false, int iter=1){
   //clog << "creating " << endl;
   y = yy;
   X = XX;
@@ -715,7 +692,7 @@ inline VarSelMCMC::VarSelMCMC(const arma::vec& yy, const arma::mat& XX, const ar
   
   //clog << "test  2" << endl;
   for(int m=0; m<mcmc; m++){
-    sampling_order = bmrandom::rndpp_shuffle(p_indices);
+    sampling_order = arma::regspace(0, p-1); // bmrandom::rndpp_shuffle(p_indices);
     for(int j=0; j<p; j++){
       int ix = sampling_order(j);
       gamma_proposal = gamma;
@@ -748,102 +725,6 @@ inline VarSelMCMC::VarSelMCMC(const arma::vec& yy, const arma::mat& XX, const ar
     sigmasq_stored(m) = sampled_model.sigmasq;
   }
   //clog << selprob << endl;
-}
-
-inline ModularVS::ModularVS(const arma::vec& y_in, const arma::field<arma::mat>& Xall_in, 
-                     const arma::field<arma::vec>& starting,
-                     int mcmc_in,
-                     arma::vec gg, 
-                     arma::vec module_prior_par, bool binary=false){
-  
-  K = Xall_in.n_elem;
-  //clog << K << endl;
-  mcmc = mcmc_in;
-  y = y_in;
-  Xall = Xall_in;
-  resid = y;
-  
-  n = y.n_elem;
-  arma::vec z(n);
-  arma::mat zsave(n, mcmc);
-  
-  z = (y-0.5)*2;
-  
-  arma::uvec yones = arma::find(y == 1);
-  arma::uvec yzeros = arma::find(y == 0);
-  
-  // y=1 is truncated lower by 0. upper=inf
-  // y=0 is truncated upper by 0, lower=-inf
-  
-  arma::vec trunc_lowerlim = arma::zeros(n);
-  trunc_lowerlim.elem(yones).fill(0.0);
-  trunc_lowerlim.elem(yzeros).fill(-arma::datum::inf);
-  
-  arma::vec trunc_upperlim = arma::zeros(n);
-  trunc_upperlim.elem(yones).fill(arma::datum::inf);
-  trunc_upperlim.elem(yzeros).fill(0.0);
-  
-  arma::mat In = arma::eye(n,n);
-  
-  intercept = arma::zeros(K, mcmc);
-  beta_store = arma::field<arma::mat>(K);
-  gamma_store = arma::field<arma::mat>(K);
-  gamma_start = starting;
-  
-  for(int j=0; j<K; j++){
-    gamma_start(j) = arma::zeros(Xall(j).n_cols);
-    for(unsigned int h=0; h<Xall(j).n_cols; h++){
-      gamma_start(j)(h) = bmrandom::rndpp_bern(0.1);
-    }
-    beta_store(j) = arma::zeros(Xall(j).n_cols, mcmc);
-    gamma_store(j) = arma::zeros(Xall(j).n_cols, mcmc);
-  }
-  
-  for(int m=0; m<mcmc; m++){
-    //clog << "m: " << m << endl;
-    if(binary){
-      resid = z;
-    } else {
-      resid = y;
-    }
-    
-    arma::vec xb_cumul = arma::zeros(n);
-    for(int j=0; j<K; j++){
-      //clog << " j: " << j << " " << arma::size(Xall(j)) << endl;
-      //clog << "  module" << endl;
-      double iboh = arma::mean(resid);
-      
-      //VSModule last_split_model = VSModule(y, X, gamma_start, MCMC, g, sprior, fixsigma, binary);
-      //VarSelMCMC bvs_model(y, X, gamma_start, g, sprior, fixsigma, MCMC);
-      
-      //VSModule onemodule = VSModule(resid, Xall(j), gamma_start(j), 1, gg, ss(j), binary?true:false, false);
-      
-      VarSelMCMC onemodule(resid, Xall(j), gamma_start(j), gg(j), module_prior_par(j), binary?true:false, 1);
-      
-      //varsel_modules.push_back(onemodule);
-      intercept(j, m) = onemodule.icept_stored(0);// onemodule.intercept;
-      xb_cumul = xb_cumul + Xall(j) * onemodule.beta_stored.col(0) + onemodule.icept_stored(0);
-      resid = (binary?z:y) - xb_cumul;
-      //clog << "  beta store" << endl;
-      beta_store(j).col(m) = onemodule.beta_stored.col(0);
-      //clog << "  gamma store" << endl;
-      gamma_store(j).col(m) = onemodule.gamma_stored.col(0);
-      //clog << "  gamma start" << endl;
-      gamma_start(j) = onemodule.gamma_stored.col(0);
-      //clog << gamma_start(1) << endl;
-    }
-    
-    if(binary){
-      z = bmrandom::mvtruncnormal_eye1(xb_cumul, 
-                             trunc_lowerlim, trunc_upperlim).col(0);
-    }
-    
-    if(mcmc > 100){
-      if(!(m % (mcmc / 10))){
-        clog << m << " " << max(abs(z)) << endl;
-      } 
-    }
-  }
 }
 
 // univariate model y ~ N(mu, sigmasq)
@@ -953,8 +834,7 @@ inline NinvG_model::NinvG_model(const arma::vec& yy,
   kappa_n = 1.0/( 1.0/kappa + n);
   mu = kappa_n * (m / kappa + arma::accu(y));
   
-  //sigmasq = 1.0/rndpp_gamma(alpha_n, 1.0/beta_n);
-  //theta = mu + pow(sigmasq * kappa_n, 0.5) * arma::randn();
+  
   posterior();
   ystdize();
 }
@@ -981,7 +861,7 @@ inline void NinvG_model::sigmasq_sample(){
 }
 
 inline void NinvG_model::theta_sample(){
-  theta = mu + pow(sigmasq * kappa_n, 0.5) * arma::randn();
+  theta = mu + pow(sigmasq * kappa_n, 0.5) * R::rnorm(0,1);
   iloglik_calc();
 }
 

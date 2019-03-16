@@ -28,6 +28,18 @@ inline arma::vec bmms_setdiff(const arma::vec& x, const arma::vec& y) {
   return arma::conv_to<arma::vec>::from(out);
 }
 
+inline arma::uvec bmms_usetdiff(const arma::uvec& x, const arma::uvec& y) {
+  std::vector<int> a = arma::conv_to< std::vector<int> >::from(arma::sort(x));
+  std::vector<int> b = arma::conv_to< std::vector<int> >::from(arma::sort(y));
+  std::vector<int> out;
+  
+  std::set_difference(a.begin(), a.end(), b.begin(), b.end(),
+                      std::inserter(out, out.end()));
+  
+  return arma::conv_to<arma::uvec>::from(out);
+}
+
+
 
 inline arma::mat X2Dgrid_alt(const arma::vec& x1, const arma::vec& x2){
   int n = x1.n_elem*x2.n_elem, 
