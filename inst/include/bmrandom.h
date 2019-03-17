@@ -1,12 +1,15 @@
-#ifndef RCPP_bmrandom
-#define RCPP_bmrandom
+#ifndef RCPP_bmrng
+#define RCPP_bmrng
 
-#include "bmdataman.h"
-#include <omp.h>
-#include "RcppArmadillo.h"
+#include <bmdataman.h>
+//#include <omp.h>
 #include "R.h"
 #include "Rmath.h"
+#include "RcppArmadillo.h"
+
 using namespace std;
+
+namespace bmrandom {
 
 const double __PI = 3.141592653589793238462643383279502884197;
 const double HALFPISQ = 0.5 * __PI * __PI;
@@ -14,7 +17,6 @@ const double FOURPISQ = 4 * __PI * __PI;
 const double __TRUNC = 0.64;
 const double __TRUNC_RECIP = 1.0 / __TRUNC;
 
-namespace bmrandom {
 
 inline arma::vec rndpp_rnormvec(int dim){
   Rcpp::RNGScope scope;
@@ -22,12 +24,11 @@ inline arma::vec rndpp_rnormvec(int dim){
 }
 
 inline arma::mat rndpp_mvnormal(int n, const arma::vec &mean, const arma::mat &sigma){
-  Rcpp::RNGScope scope;
   int dimension = arma::size(mean)(0);
   arma::vec xtemp = arma::zeros(dimension);
   arma::mat outmat = arma::zeros(n, dimension);
   arma::mat cholsigma = arma::chol(sigma, "lower");
-#pragma omp parallel for num_threads(NUM_THREADS)
+  //#pragma omp parallel for num_threads(NUM_THREADS)
   for(int i=0; i<n; i++){
     //for(int j=0; j<dimension; j++){
     //  xtemp(j) = rndpp_normal(0.0, 1.0, mt);
@@ -46,11 +47,7 @@ inline arma::mat rndpp_mvnormal1(int n, const arma::vec &mean, const arma::mat &
   arma::mat outmat = arma::zeros(n, dimension);
   arma::mat cholsigma = arma::chol(sigma, "lower");
   for(int i=0; i<n; i++){
-    //for(int j=0; j<dimension; j++){
-    //  xtemp(j) = rndpp_normal(0.0, 1.0, mt);
-    //}
     xtemp = rndpp_rnormvec(dimension);
-    //clog << arma::det(sigma) << endl;
     outmat.row(i) = (mean + cholsigma * xtemp).t();
   }
   return outmat;
@@ -59,7 +56,6 @@ inline arma::mat rndpp_mvnormal1(int n, const arma::vec &mean, const arma::mat &
 inline arma::mat rndpp_mvnormal2(int n, const arma::vec& mu, const arma::mat& sigma) {
   int ncols = sigma.n_cols;
   arma::mat Y = arma::zeros(n, ncols);
-#pragma omp parallel for num_threads(NUM_THREADS)
   for(unsigned int j=0; j<ncols; j++){
     Y.col(j) = rndpp_rnormvec(n);
   }
@@ -70,7 +66,6 @@ inline arma::mat rndpp_stdmvnormal(int n, int dimension){
   
   arma::vec xtemp = arma::zeros(dimension);
   arma::mat outmat = arma::zeros(dimension, n);
-#pragma omp parallel for num_threads(NUM_THREADS)
   for(int i=0; i<n; i++){
     outmat.col(i) = rndpp_rnormvec(dimension);
   }
@@ -79,7 +74,7 @@ inline arma::mat rndpp_stdmvnormal(int n, int dimension){
 
 // sample 1 of 0:max-1 uniformly
 inline int rndpp_unif_int(int max){
-  Rcpp::RNGScope scope;
+  //Rcpp::RNGScope scope;
   double uf = R::runif(0, max+1);
   return floor(uf);
 }
@@ -200,8 +195,8 @@ inline int rndpp_sample1_comp(const arma::vec& x, int npossible, int current_spl
 //inline arma::vec rndpp_shuffle(arma::vec x){
 //  Rcpp::RNGScope scope;
 //  return Rcpp::RcppArmadillo::sample(x, x.n_elem, false); 
-  //std::random_shuffle ( x.begin(), x.end() );
-  //return x;
+//std::random_shuffle ( x.begin(), x.end() );
+//return x;
 //}
 
 inline double rndpp_bern(double p){
@@ -233,7 +228,7 @@ inline arma::mat rndpp_mvt(int n, const arma::vec &mu, const arma::mat &sigma, d
   arma::mat Z = rndpp_stdmvnormal(n, mu.n_elem);
   arma::mat cholsigma = arma::chol(sigma, "lower");
   arma::mat AZ = Z;
-#pragma omp parallel for num_threads(NUM_THREADS)
+  //#pragma omp parallel for num_threads(NUM_THREADS)
   for(int i=0; i<AZ.n_rows; i++){
     w = sqrt( df / R::rchisq(df) );
     AZ.row(i) = (mu + w * (cholsigma * Z.row(i).t())).t();
@@ -276,6 +271,7 @@ inline double PolyaGamma::a(int n, double x)
 
 inline double PolyaGamma::pigauss(double x, double Z)
 {
+  Rcpp::RNGScope scope;
   double b = sqrt(1.0 / x) * (x * Z - 1);
   double a = sqrt(1.0 / x) * (x * Z + 1) * -1.0;
   double y = R::pnorm(b, 0.0, 1.0, 1, 0) + exp(2 * Z) * R::pnorm(a, 0.0, 1.0, 1, 0);
@@ -284,6 +280,7 @@ inline double PolyaGamma::pigauss(double x, double Z)
 
 inline double PolyaGamma::mass_texpon(double Z)
 {
+  Rcpp::RNGScope scope;
   double t = __TRUNC;
   
   double fz = 0.125 * __PI*__PI + 0.5 * Z*Z;
