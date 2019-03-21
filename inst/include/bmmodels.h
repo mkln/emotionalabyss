@@ -62,6 +62,7 @@ public:
   arma::vec b;
   double sigmasq;
   double lambda; // ridge
+  double g; // gprior
   
   // priors
   
@@ -100,7 +101,7 @@ public:
   BayesLM(const arma::vec&, const arma::mat&, bool);
   BayesLM(arma::vec, arma::mat, double);
   BayesLM(const arma::vec&, const arma::mat&, double, bool);
-  BayesLM(const arma::vec&, const arma::mat&, double, bool, double);
+  BayesLM(const arma::vec&, const arma::mat&, double, bool, double, double);
   BayesLM(arma::vec, arma::mat, arma::mat);
 };
 
@@ -153,6 +154,7 @@ public:
   void sample_beta();
   
   void change_X(const arma::mat&);
+  void change_offset(const arma::vec&); // change y
   
   BayesLMg();
   //BayesLMg(const arma::vec&, const arma::mat&, bool);
@@ -229,7 +231,8 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX, bool fixs=fals
   
   m = arma::zeros(p);
   //M = n*XtXi;
-  Mi = 1.0/log(1.0+n) * XtX + arma::eye(p,p) * lambda;
+  g = log(1.0+n);
+  Mi = 1.0/g * XtX + arma::eye(p,p) * lambda;
   mtMim = 0.0; //arma::conv_to<double>::from(m.t()*Mi*m);
   
   alpha = 0.0;
@@ -266,7 +269,8 @@ inline BayesLM::BayesLM(arma::vec yy, arma::mat XX, double lambda_in = 1){
   
   m = arma::zeros(p);
   //M = n*XtXi;
-  Mi = 1.0/log(1.0+n) * XtX + arma::eye(p,p) * lambda;
+  g = log(1.0+n); 
+  Mi = 1.0/g * XtX + arma::eye(p,p) * lambda;
   mtMim = 0.0; //arma::conv_to<double>::from(m.t()*Mi*m);
   
   alpha = 2.1; // parametrization: a = mean^2 / variance + 2
@@ -286,7 +290,6 @@ inline BayesLM::BayesLM(arma::vec yy, arma::mat XX, double lambda_in = 1){
   reg_mean = icept + X * b;
 }
 
-
 inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX, double lambda_in = 1, bool fixs=false){
   fix_sigma = fixs;
   y = yy;
@@ -304,7 +307,8 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX, double lambda_
   m = arma::zeros(p);
   //M = n*XtXi;
   //clog << lambda << endl;
-  Mi = 1.0/log(1.0+n) * XtX + Ip * lambda;
+  g = log(1.0+n);
+  Mi = 1.0/g * XtX + Ip * lambda;
   mtMim = 0.0; //arma::conv_to<double>::from(m.t()*Mi*m);
   
   alpha = 2.1; // parametrization: a = mean^2 / variance + 2
@@ -332,10 +336,9 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX, double lambda_
   reg_mean = icept + X * b;
 }
 
-
 inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX, 
                         double lambda_in = 1, bool fixs=false,
-                        double sigmasqin=1.0){
+                        double sigmasqin=1.0, double gin=-1){
   fix_sigma = fixs;
   y = yy;
   X = XX;
@@ -345,6 +348,12 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX,
   lambda = lambda_in;
   XtX = X.t() * X;
   
+  if(gin==-1){
+    g = 1.0/log(1.0+n);
+  } else {
+    g = gin;
+  }
+  
   icept = arma::mean(y);
   ycenter = y - icept;
   
@@ -352,7 +361,7 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX,
   m = arma::zeros(p);
   //M = n*XtXi;
   //clog << lambda << endl;
-  Mi = 1.0/log(1.0+n) * XtX + Ip * lambda;
+  Mi = 1.0/g * XtX + Ip * lambda;
   mtMim = 0.0; //arma::conv_to<double>::from(m.t()*Mi*m);
   
   alpha = 2.1; // parametrization: a = mean^2 / variance + 2
@@ -396,6 +405,7 @@ inline BayesLM::BayesLM(arma::vec yy, arma::mat XX, arma::mat MM){
   icept = arma::mean(y);
   ycenter = y - icept;
   
+  g = 0;
   m = arma::zeros(p);
   M = MM;
   Mi = arma::inv_sympd(M);
@@ -567,6 +577,40 @@ inline BayesLMg::BayesLMg(const arma::vec& yy, const arma::mat& Xin, double gin,
   yPxy = arma::conv_to<double>::from(ycenter.t() * bmdataman::hat(X) * ycenter);
   marglik = get_marglik(fixs);
 };
+
+inline BayesLMg::change_offset(const arma::vec& newy){
+  
+  y = newy;
+  n = y.n_elem;
+  
+  ycenter = y - arma::mean(y);
+
+  yty = arma::conv_to<double>::from(ycenter.t()*ycenter);
+  
+  if(sampling_mcmc){
+    mu = Sigma * X.t() * ycenter;
+    mutSimu = arma::conv_to<double>::from(mu.t()*inv_var_post*mu);
+    if(fix_sigma){
+      alpha = 0.0;
+      beta = 0.0;
+      sigmasq = 1.0;
+      sample_beta();
+      
+    } else {
+      alpha = 2.1; // parametrization: a = mean^2 / variance + 2
+      beta = alpha-1;  //                  b = (mean^3 + mean*variance) / variance
+      alpha_n = alpha + n/2.0;
+      beta_n = beta + 0.5*(-mutSimu + yty);
+      
+      sample_sigmasq();
+      sample_beta();
+    }
+  }
+  //yPxy = arma::conv_to<double>::from(y.t() * X * arma::inv_sympd(XtX) * X.t() * y);
+  yPxy = arma::conv_to<double>::from(ycenter.t() * bmdataman::hat(X) * ycenter);
+  marglik = get_marglik(fixs);
+};
+
 
 inline void BayesLMg::change_X(const arma::mat& Xin){
   X = Xin;

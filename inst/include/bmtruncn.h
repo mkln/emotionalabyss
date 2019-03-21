@@ -439,7 +439,6 @@ inline arma::mat mvtruncnormal(const arma::vec& mean,
                                const arma::mat& Sig, int n){
   arma::mat meanmat = arma::zeros(mean.n_elem, n);
   arma::mat truncraw = mvrandn_cpp(l_in-mean, u_in-mean, Sig, n);
-#pragma omp parallel for num_threads(NUM_THREADS)
   for(unsigned int i=0; i<n; i++){
     meanmat.col(i) = mean + truncraw.col(i);
   }

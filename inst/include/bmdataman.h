@@ -6,13 +6,9 @@
 #include <ctime>
 #include <math.h>
 #include <cstdlib>
-#include <omp.h>
-
-#define NUM_THREADS 4
 
 using namespace std;
 
-// #pragma omp parallel for num_threads(NUM_THREADS)
 // functions not specific to modular models
 
 namespace bmdataman {

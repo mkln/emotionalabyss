@@ -9,14 +9,6 @@ splitmask_to_splitsub <- function(splitmask) {
     .Call(`_emotionalabyss_splitmask_to_splitsub`, splitmask)
 }
 
-mask_onesplit <- function(startmat, onesplit, seq) {
-    .Call(`_emotionalabyss_mask_onesplit`, startmat, onesplit, seq)
-}
-
-splitsub_to_groupmask_blocks <- function(splits, p1, p2) {
-    .Call(`_emotionalabyss_splitsub_to_groupmask_blocks`, splits, p1, p2)
-}
-
 row_intersection <- function(mat1, mat2) {
     .Call(`_emotionalabyss_row_intersection`, mat1, mat2)
 }
@@ -39,10 +31,6 @@ mask_oneval <- function(A, mask, val) {
 
 mask_oneval_sum <- function(A, mask, val) {
     .Call(`_emotionalabyss_mask_oneval_sum`, A, mask, val)
-}
-
-mask_cube_slice <- function(C, slice, mask, val) {
-    .Call(`_emotionalabyss_mask_cube_slice`, C, slice, mask, val)
 }
 
 mat_to_vec_by_region <- function(A, mask, unique_regions) {

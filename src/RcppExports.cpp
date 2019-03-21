@@ -30,32 +30,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// mask_onesplit
-arma::mat mask_onesplit(const arma::mat& startmat, const arma::vec& onesplit, int seq);
-RcppExport SEXP _emotionalabyss_mask_onesplit(SEXP startmatSEXP, SEXP onesplitSEXP, SEXP seqSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type startmat(startmatSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type onesplit(onesplitSEXP);
-    Rcpp::traits::input_parameter< int >::type seq(seqSEXP);
-    rcpp_result_gen = Rcpp::wrap(mask_onesplit(startmat, onesplit, seq));
-    return rcpp_result_gen;
-END_RCPP
-}
-// splitsub_to_groupmask_blocks
-arma::mat splitsub_to_groupmask_blocks(const arma::mat& splits, int p1, int p2);
-RcppExport SEXP _emotionalabyss_splitsub_to_groupmask_blocks(SEXP splitsSEXP, SEXP p1SEXP, SEXP p2SEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type splits(splitsSEXP);
-    Rcpp::traits::input_parameter< int >::type p1(p1SEXP);
-    Rcpp::traits::input_parameter< int >::type p2(p2SEXP);
-    rcpp_result_gen = Rcpp::wrap(splitsub_to_groupmask_blocks(splits, p1, p2));
-    return rcpp_result_gen;
-END_RCPP
-}
 // row_intersection
 arma::mat row_intersection(const arma::mat& mat1, const arma::mat& mat2);
 RcppExport SEXP _emotionalabyss_row_intersection(SEXP mat1SEXP, SEXP mat2SEXP) {
@@ -127,20 +101,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type mask(maskSEXP);
     Rcpp::traits::input_parameter< int >::type val(valSEXP);
     rcpp_result_gen = Rcpp::wrap(mask_oneval_sum(A, mask, val));
-    return rcpp_result_gen;
-END_RCPP
-}
-// mask_cube_slice
-double mask_cube_slice(const arma::cube& C, int slice, const arma::mat& mask, int val);
-RcppExport SEXP _emotionalabyss_mask_cube_slice(SEXP CSEXP, SEXP sliceSEXP, SEXP maskSEXP, SEXP valSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::cube& >::type C(CSEXP);
-    Rcpp::traits::input_parameter< int >::type slice(sliceSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type mask(maskSEXP);
-    Rcpp::traits::input_parameter< int >::type val(valSEXP);
-    rcpp_result_gen = Rcpp::wrap(mask_cube_slice(C, slice, mask, val));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -924,15 +884,12 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_emotionalabyss_splitsub_to_splitmask", (DL_FUNC) &_emotionalabyss_splitsub_to_splitmask, 3},
     {"_emotionalabyss_splitmask_to_splitsub", (DL_FUNC) &_emotionalabyss_splitmask_to_splitsub, 1},
-    {"_emotionalabyss_mask_onesplit", (DL_FUNC) &_emotionalabyss_mask_onesplit, 3},
-    {"_emotionalabyss_splitsub_to_groupmask_blocks", (DL_FUNC) &_emotionalabyss_splitsub_to_groupmask_blocks, 3},
     {"_emotionalabyss_row_intersection", (DL_FUNC) &_emotionalabyss_row_intersection, 2},
     {"_emotionalabyss_row_difference", (DL_FUNC) &_emotionalabyss_row_difference, 2},
     {"_emotionalabyss_splitsub_to_groupmask", (DL_FUNC) &_emotionalabyss_splitsub_to_groupmask, 3},
     {"_emotionalabyss_mat_unique", (DL_FUNC) &_emotionalabyss_mat_unique, 1},
     {"_emotionalabyss_mask_oneval", (DL_FUNC) &_emotionalabyss_mask_oneval, 3},
     {"_emotionalabyss_mask_oneval_sum", (DL_FUNC) &_emotionalabyss_mask_oneval_sum, 3},
-    {"_emotionalabyss_mask_cube_slice", (DL_FUNC) &_emotionalabyss_mask_cube_slice, 4},
     {"_emotionalabyss_mat_to_vec_by_region", (DL_FUNC) &_emotionalabyss_mat_to_vec_by_region, 3},
     {"_emotionalabyss_cube_to_mat_by_region", (DL_FUNC) &_emotionalabyss_cube_to_mat_by_region, 3},
     {"_emotionalabyss_unmask_vector", (DL_FUNC) &_emotionalabyss_unmask_vector, 3},

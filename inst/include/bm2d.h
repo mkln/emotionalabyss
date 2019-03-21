@@ -7,6 +7,7 @@
 #include <math.h>
 #include <cstdlib>
 #include "bmfuncs.h" 
+#include <omp.h>
 
 using namespace std;
 
@@ -43,65 +44,72 @@ inline arma::field<arma::mat> splitmask_to_splitsub(const arma::mat& splitmask){
 }
 
 
-
 /*
  *              FUNCTIONS FOR GROUPING MASKS
  *                   AND COARSENING
  */
 
-// from a starting grouping mask, split the relevant region 
-// using the new split onesplit. for BLOCKS, not voronoi
-inline arma::mat mask_onesplit(const arma::mat& startmat, 
-                               const arma::vec& onesplit, int seq){
-  int p1 = startmat.n_rows;
-  int p2 = startmat.n_cols;
-  //int maxval = startmat.max();
-  arma::mat mask = startmat;
-  for(unsigned int i=0; i<p1; i++){
-    for(unsigned int j=0; j<p2; j++){
-      //if(startmat(i,j) == startmat(onesplit(0), onesplit(1))){
-      if(i <= onesplit(0)){
-        if(j <= onesplit(1)){
-          mask(i,j)=startmat(i,j)+1*pow(10, seq);
-        } else {
-          mask(i,j)=startmat(i,j)+2*pow(10, seq);
-        }
-      } else {
-        if(j <= onesplit(1)){
-          mask(i,j)=startmat(i,j)+3*pow(10, seq);
-        } else {
-          mask(i,j)=startmat(i,j)+4*pow(10, seq);
-        }
-      }
-      //}
-    } 
-  }
-  return(mask-mask.min());
-}
-
-// make a grouping mask from split matrix
-// a grouping max assigns each element of the grid to a numbered group
-inline arma::mat splitsub_to_groupmask_blocks(const arma::mat& splits, int p1, int p2){
-  // splits is a nsplit x 2 matrix
-  arma::mat splitted = arma::zeros(p1, p2);
-  for(unsigned int i=0; i<splits.n_rows; i++){
-    if((splits(i,0)==p1-1) & (splits(i,1)==p2-1)){
-      cout << splits.t() << endl;
-      throw std::invalid_argument("edge splits not allowed: nothing to split");
-    } else {
-      if((splits(i,0)>p1-1) || (splits(i,1)>p2-1) || (splits(i,0)<0) || (splits(i,1)<0)){
-        throw std::invalid_argument("one split outside splitting region");
-      } else {
-        splitted = mask_onesplit(splitted, splits.row(i).t(), i);
-      }
-    }
-  }
-  return(splitted);
-}
+/*
+ // from a starting grouping mask, split the relevant region 
+ // using the new split onesplit. for BLOCKS, not voronoi
+ inline arma::mat mask_onesplit(const arma::mat& startmat, 
+ const arma::vec& onesplit, int seq){
+ int p1 = startmat.n_rows;
+ int p2 = startmat.n_cols;
+ //int maxval = startmat.max();
+ arma::mat mask = startmat;
+#pragma omp parallel
+ {
+ for(unsigned int i=0; i<p1; i++){
+ for(unsigned int j=0; j<p2; j++){
+ //if(startmat(i,j) == startmat(onesplit(0), onesplit(1))){
+ if(i <= onesplit(0)){
+ if(j <= onesplit(1)){
+ mask(i,j)=startmat(i,j)+1*pow(10, seq);
+ } else {
+ mask(i,j)=startmat(i,j)+2*pow(10, seq);
+ }
+ } else {
+ if(j <= onesplit(1)){
+ mask(i,j)=startmat(i,j)+3*pow(10, seq);
+ } else {
+ mask(i,j)=startmat(i,j)+4*pow(10, seq);
+ }
+ }
+ //}
+ } 
+ }
+ }
+ return(mask-mask.min());
+ }
+ 
+ // make a grouping mask from split matrix
+ // a grouping max assigns each element of the grid to a numbered group
+ inline arma::mat splitsub_to_groupmask_blocks(const arma::mat& splits, int p1, int p2){
+ // splits is a nsplit x 2 matrix
+ arma::mat splitted = arma::zeros(p1, p2);
+ for(unsigned int i=0; i<splits.n_rows; i++){
+ if((splits(i,0)==p1-1) & (splits(i,1)==p2-1)){
+ cout << splits.t() << endl;
+ throw std::invalid_argument("edge splits not allowed: nothing to split");
+ } else {
+ if((splits(i,0)>p1-1) || (splits(i,1)>p2-1) || (splits(i,0)<0) || (splits(i,1)<0)){
+ throw std::invalid_argument("one split outside splitting region");
+ } else {
+ splitted = mask_onesplit(splitted, splits.row(i).t(), i);
+ }
+ }
+ }
+ return(splitted);
+ }
+ 
+ */
 
 inline arma::mat row_intersection(const arma::mat& mat1, const arma::mat& mat2){
   arma::mat inter = -1*arma::zeros(mat1.n_rows<mat2.n_rows? mat1.n_rows : mat2.n_rows, 2);
   int c=0;
+  //#pragma omp parallel
+  //{
   for(unsigned int i=0; i<mat1.n_rows; i++){
     for(unsigned int j=0; j<mat2.n_rows; j++){
       if(arma::approx_equal(mat1.row(i), mat2.row(j), "absdiff", 0.002)){
@@ -110,6 +118,7 @@ inline arma::mat row_intersection(const arma::mat& mat1, const arma::mat& mat2){
       }
     }
   }
+  //}
   if(c>0){
     return inter.rows(0,c-1);
   } else {
@@ -132,6 +141,7 @@ inline arma::mat row_difference(const arma::mat& mat1, const arma::mat& mat2){
       c++;
     }
   }
+
   if(c>0){
     return diff.rows(0,c-1);
   } else {
@@ -139,9 +149,7 @@ inline arma::mat row_difference(const arma::mat& mat1, const arma::mat& mat2){
   }
 }
 
-
 //with H. voronoi tessellation
-//[[Rcpp::export]]
 inline arma::mat splitsub_to_groupmask(arma::field<arma::mat> splits, int p1, int p2){
   // splits is a nsplit x 2 matrix
   arma::vec distances = arma::ones(splits(0).n_rows);
@@ -163,36 +171,27 @@ inline arma::mat splitsub_to_groupmask(arma::field<arma::mat> splits, int p1, in
   // other levels
   int lev = splits.n_elem;
   for(unsigned int l=1; l<splits.n_elem; l++){
-    //clog << "more than one level! " << endl;
     // subset the search on the points in the groupmask that
     // belong to the same group in the previous level
     int splits_at_prev_lev = splits(l-1).n_rows;
-    //clog << "splits at previous level " << splits_at_prev_lev << endl;
     // loop over possible values of previous levels
     for(unsigned int s=0; s<splits_at_prev_lev; s++){
-      //clog << "prev split " << splits(l-1).row(s) << endl;
       // for each split at this level,
       // subset matrix elements with same value of split
       arma::uvec locs = arma::find(splitted == splitted( splits(l-1)(s,0), splits(l-1)(s,1) ));
       // relevant splits are only those that are also in the same area
-      //arma::mat rett = arma::intersect(arma::ind2sub(arma::size(splitted), locs), arma::conv_to<arma::umat>::from(splits(l)));
       arma::mat all_locs_subs = arma::conv_to<arma::mat>::from(arma::ind2sub(arma::size(splitted), locs));
-      //clog << "locs with same value as " << splits(l-1).row(s) << endl;
-      //clog << all_locs_subs.t() << endl;
       arma::mat relevant = row_intersection(all_locs_subs.t(), splits(l));
-      //clog << "relevant splits: " << relevant << endl;
       // distance of subset points from all relevant splits at this level
-      distances = arma::ones(relevant.n_rows);
+      arma::mat distances = arma::ones(relevant.n_rows);
       if(distances.n_elem > 0){
+        
         for(unsigned int i=0; i<locs.n_elem; i++){ // like for i, for j, but vectorized
           arma::uvec inde = arma::ind2sub(arma::size(splitted), locs(i));
-          //clog << "location " << inde << endl;
           for(unsigned int r=0; r<relevant.n_rows; r++){
             distances(r) = pow(0.0+inde(0) - relevant(r,0), 2) + pow(0.0+ inde(1) - relevant(r,1), 2);
           }
           splitted(inde(0), inde(1)) += (1+distances.index_min())*pow(10,l);
-          //clog << "element in subset " << inde.t() << endl;
-          //clog << "min dist with split index " << distances.index_min() << endl;
         } 
       }
     }
@@ -221,13 +220,6 @@ inline double mask_oneval_sum(const arma::mat& A, const arma::mat& mask, int val
   return(arma::accu(A.elem(uvals)));
 }
 
-// same as mask_oneval_sum but for a cube slice
-// cube here will be the cube-X to be transformed in matrix-X
-inline double mask_cube_slice(const arma::cube& C, int slice, const arma::mat& mask, int val){
-  arma::uvec uvals = arma::find(mask == val);
-  return(arma::accu(C.slice(slice).elem(uvals)));
-}
-
 // transform a regressor matrix to a vector using grouping mask as coarsening
 inline arma::vec mat_to_vec_by_region(const arma::mat& A, const arma::mat& mask, 
                                       const arma::vec& unique_regions){
@@ -246,11 +238,11 @@ inline arma::mat cube_to_mat_by_region(const arma::cube& C, const arma::mat& mas
   // cube is assumed dimension (p1, p2, n)
   int n_unique_regions = unique_regions.n_elem;
   arma::mat matricized_cube = arma::zeros(C.n_slices, n_unique_regions);
-  for(unsigned int i=0; i<C.n_slices; i++){
+  for(unsigned int r=0; r<n_unique_regions; r++){
     // every row in the cube is a matrix observation
-    for(unsigned int r=0; r<n_unique_regions; r++){
+    for(unsigned int i=0; i<C.n_slices; i++){
       // we transform every matrix into a vector by region
-      matricized_cube(i,r) = mask_cube_slice(C, i, mask, unique_regions(r));
+      matricized_cube(i,r) = mask_oneval_sum(C.slice(i), mask, unique_regions(r));
     }
   }
   return(matricized_cube);
