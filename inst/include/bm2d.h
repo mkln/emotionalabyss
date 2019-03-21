@@ -7,7 +7,6 @@
 #include <math.h>
 #include <cstdlib>
 #include "bmfuncs.h" 
-#include <omp.h>
 
 using namespace std;
 
