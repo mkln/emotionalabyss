@@ -578,7 +578,7 @@ inline BayesLMg::BayesLMg(const arma::vec& yy, const arma::mat& Xin, double gin,
   marglik = get_marglik(fixs);
 };
 
-inline BayesLMg::change_offset(const arma::vec& newy){
+inline void BayesLMg::change_offset(const arma::vec& newy){
   
   y = newy;
   n = y.n_elem;
