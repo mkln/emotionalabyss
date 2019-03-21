@@ -154,7 +154,6 @@ public:
   void sample_beta();
   
   void change_X(const arma::mat&);
-  void change_offset(const arma::vec&); // change y
   
   BayesLMg();
   //BayesLMg(const arma::vec&, const arma::mat&, bool);
@@ -577,40 +576,6 @@ inline BayesLMg::BayesLMg(const arma::vec& yy, const arma::mat& Xin, double gin,
   yPxy = arma::conv_to<double>::from(ycenter.t() * bmdataman::hat(X) * ycenter);
   marglik = get_marglik(fixs);
 };
-
-inline void BayesLMg::change_offset(const arma::vec& newy){
-  
-  y = newy;
-  n = y.n_elem;
-  
-  ycenter = y - arma::mean(y);
-
-  yty = arma::conv_to<double>::from(ycenter.t()*ycenter);
-  
-  if(sampling_mcmc){
-    mu = Sigma * X.t() * ycenter;
-    mutSimu = arma::conv_to<double>::from(mu.t()*inv_var_post*mu);
-    if(fix_sigma){
-      alpha = 0.0;
-      beta = 0.0;
-      sigmasq = 1.0;
-      sample_beta();
-      
-    } else {
-      alpha = 2.1; // parametrization: a = mean^2 / variance + 2
-      beta = alpha-1;  //                  b = (mean^3 + mean*variance) / variance
-      alpha_n = alpha + n/2.0;
-      beta_n = beta + 0.5*(-mutSimu + yty);
-      
-      sample_sigmasq();
-      sample_beta();
-    }
-  }
-  //yPxy = arma::conv_to<double>::from(y.t() * X * arma::inv_sympd(XtX) * X.t() * y);
-  yPxy = arma::conv_to<double>::from(ycenter.t() * bmdataman::hat(X) * ycenter);
-  marglik = get_marglik(fixs);
-};
-
 
 inline void BayesLMg::change_X(const arma::mat& Xin){
   X = Xin;
