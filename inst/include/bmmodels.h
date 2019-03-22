@@ -699,7 +699,7 @@ inline VarSelMCMC::VarSelMCMC(const arma::vec& yy, const arma::mat& XX, const ar
   arma::uvec gammaix = arma::find(gamma);
   //clog << "test  1" << endl;
   model = BayesSelect(y, X.cols(gammaix), gin, fixsigma);
-  marglik = model.marglil;
+  marglik = model.marglik;
   
   //clog << "test  2" << endl;
   for(int m=0; m<mcmc; m++){
