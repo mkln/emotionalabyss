@@ -137,10 +137,6 @@ usetdiff <- function(x, y) {
     .Call(`_emotionalabyss_usetdiff`, x, y)
 }
 
-split_struct_ratio <- function(prop_split, orig_split, p, param) {
-    .Call(`_emotionalabyss_split_struct_ratio`, prop_split, orig_split, p, param)
-}
-
 single_split <- function(Jcoarse, where, p) {
     .Call(`_emotionalabyss_single_split`, Jcoarse, where, p)
 }

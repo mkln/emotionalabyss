@@ -1,7 +1,7 @@
 #ifndef RCPP_bmtruncn
 #define RCPP_bmtruncn
 
-#include "bmdataman.h"
+#include "bmfuncs.h"
 #include "bmrandom.h"
 
 
@@ -16,7 +16,7 @@ inline arma::vec lnNpr_cpp(const arma::vec& a, const arma::vec& b){
   arma::uvec idx = arma::find(b < 0);
   int siz = a.n_elem;
   arma::uvec all_idx = arma::regspace<arma::uvec>(0, siz-1);
-  arma::uvec I2 = bmdataman::usetdiff(bmdataman::usetdiff(all_idx, I), idx);
+  arma::uvec I2 = bmfuncs::usetdiff(bmfuncs::usetdiff(all_idx, I), idx);
   //clog << I2 << endl;
   
   arma::vec pa;
@@ -24,26 +24,26 @@ inline arma::vec lnNpr_cpp(const arma::vec& a, const arma::vec& b){
   if(I.n_elem > 0){
     pa = a(I);
     pb = b(I);
-    pa = bmdataman::pnorm01_vec(pa, 0, 1);
-    pb = bmdataman::pnorm01_vec(pb, 0, 1);
+    pa = bmfuncs::pnorm01_vec(pa, 0, 1);
+    pb = bmfuncs::pnorm01_vec(pb, 0, 1);
     arma::vec eba = -exp(pb-pa);
-    p(I) = pa + bmdataman::log1p_vec(eba);
+    p(I) = pa + bmfuncs::log1p_vec(eba);
   }
   if(idx.n_elem > 0){
     pa = a(idx);
     pb = b(idx);
-    pa = bmdataman::pnorm01_vec(pa, 1, 1);
-    pb = bmdataman::pnorm01_vec(pb, 1, 1);
+    pa = bmfuncs::pnorm01_vec(pa, 1, 1);
+    pb = bmfuncs::pnorm01_vec(pb, 1, 1);
     arma::vec eba = -exp(pa-pb);
-    p(idx) = pb + bmdataman::log1p_vec(eba);
+    p(idx) = pb + bmfuncs::log1p_vec(eba);
   }
   if(I2.n_elem > 0){
     pa = a(I2);
     pb = b(I2);
-    pa = bmdataman::pnorm01_vec(pa, 1, 0);
-    pb = bmdataman::pnorm01_vec(pb, 0, 0);
+    pa = bmfuncs::pnorm01_vec(pa, 1, 0);
+    pb = bmfuncs::pnorm01_vec(pb, 0, 0);
     arma::vec eba = -pa-pb;
-    p(I2) = bmdataman::log1p_vec(eba);
+    p(I2) = bmfuncs::log1p_vec(eba);
   }
   return p;
 }
@@ -286,9 +286,9 @@ inline arma::vec tn_cpp(const arma::vec& l, const arma::vec& u){
   if(I_c.n_elem > 0){
     arma::vec tl = l.elem(I_c);
     arma::vec tu = u.elem(I_c);
-    arma::vec pl = bmdataman::pnorm01_vec(tl);
-    arma::vec pu = bmdataman::pnorm01_vec(tu);
-    x.elem(I_c) = bmdataman::qnorm01_vec(pl + (pu - pl) % rndpp_runif(tl.n_elem));
+    arma::vec pl = bmfuncs::pnorm01_vec(tl);
+    arma::vec pu = bmfuncs::pnorm01_vec(tu);
+    x.elem(I_c) = bmfuncs::qnorm01_vec(pl + (pu - pl) % rndpp_runif(tl.n_elem));
   }
   return x;
 }

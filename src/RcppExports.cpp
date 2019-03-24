@@ -413,20 +413,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// split_struct_ratio
-double split_struct_ratio(arma::vec prop_split, arma::vec orig_split, int p, double param);
-RcppExport SEXP _emotionalabyss_split_struct_ratio(SEXP prop_splitSEXP, SEXP orig_splitSEXP, SEXP pSEXP, SEXP paramSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec >::type prop_split(prop_splitSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type orig_split(orig_splitSEXP);
-    Rcpp::traits::input_parameter< int >::type p(pSEXP);
-    Rcpp::traits::input_parameter< double >::type param(paramSEXP);
-    rcpp_result_gen = Rcpp::wrap(split_struct_ratio(prop_split, orig_split, p, param));
-    return rcpp_result_gen;
-END_RCPP
-}
 // single_split
 arma::mat single_split(const arma::mat& Jcoarse, int where, int p);
 RcppExport SEXP _emotionalabyss_single_split(SEXP JcoarseSEXP, SEXP whereSEXP, SEXP pSEXP) {
@@ -916,7 +902,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_emotionalabyss_qnorm01_vec", (DL_FUNC) &_emotionalabyss_qnorm01_vec, 3},
     {"_emotionalabyss_log1p_vec", (DL_FUNC) &_emotionalabyss_log1p_vec, 1},
     {"_emotionalabyss_usetdiff", (DL_FUNC) &_emotionalabyss_usetdiff, 2},
-    {"_emotionalabyss_split_struct_ratio", (DL_FUNC) &_emotionalabyss_split_struct_ratio, 4},
     {"_emotionalabyss_single_split", (DL_FUNC) &_emotionalabyss_single_split, 3},
     {"_emotionalabyss_single_split_new", (DL_FUNC) &_emotionalabyss_single_split_new, 3},
     {"_emotionalabyss_multi_split", (DL_FUNC) &_emotionalabyss_multi_split, 3},

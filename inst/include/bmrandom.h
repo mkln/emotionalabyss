@@ -1,7 +1,7 @@
 #ifndef RCPP_bmrng
 #define RCPP_bmrng
 
-#include <bmdataman.h>
+#include "bmfuncs.h"
 //#include <omp.h>
 #include "R.h"
 #include "Rmath.h"
@@ -115,7 +115,7 @@ inline arma::vec rndpp_sample(const arma::vec& x, int num){
   for(int i=0; i<num; i++){
     arma::vec probs = arma::ones(avails.n_elem);
     sol(i) = avails(rndpp_discrete(probs));
-    avails = bmdataman::bmms_setdiff(avails, sol);
+    avails = bmfuncs::bmms_setdiff(avails, sol);
   }
   return sol;
 }
@@ -144,7 +144,7 @@ inline int rndpp_sample1_comp_alt(const arma::vec& x, int p, int current_split, 
    */
   //double decay = 5.0;
   arma::vec all = arma::linspace(0, p-1, p);
-  arma::vec avail = bmdataman::bmms_setdiff(all, x);
+  arma::vec avail = bmfuncs::bmms_setdiff(all, x);
   //cout << avail << endl;
   arma::vec probweights;
   if(current_split == -1){
@@ -177,7 +177,7 @@ inline int rndpp_sample1_comp(const arma::vec& x, int npossible, int current_spl
    */
   //double decay = 5.0;
   arma::vec all = arma::linspace(0, npossible-1, npossible);
-  arma::vec avail = bmdataman::bmms_setdiff(all, x);
+  arma::vec avail = bmfuncs::bmms_setdiff(all, x);
   //cout << avail << endl;
   arma::vec probweights;
   if(current_split == -1){

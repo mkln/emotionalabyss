@@ -1,9 +1,114 @@
 #include "../inst/include/bmfuncs.h"
 
+//[[Rcpp::export]] 
+arma::vec setdiff(const arma::vec& x, const arma::vec& y) {
+  return bmfuncs::bmms_setdiff(x, y);
+}
+
+//[[Rcpp::export]] 
+arma::mat X2Dgrid(const arma::vec& x1, const arma::vec& x2){
+  return bmfuncs::X2Dgrid(x1, x2);
+}
+
+//[[Rcpp::export]] 
+arma::mat X2Dgrid_alt(const arma::vec& x1, const arma::vec& x2){
+  return bmfuncs::X2Dgrid_alt(x1, x2);
+}
+
+//[[Rcpp::export]] 
+arma::mat exclude(const arma::mat& test, const arma::vec& excl){
+  return bmfuncs::exclude(test, excl);
+}
+
+//[[Rcpp::export]] 
+arma::vec nonzeromean(const arma::mat& mat_mcmc){
+  return bmfuncs::nonzeromean(mat_mcmc);
+}
+
+//[[Rcpp::export]] 
+arma::vec col_eq_check(const arma::mat& A){
+  return bmfuncs::col_eq_check(A);
+}
+
+//[[Rcpp::export]] 
+arma::vec col_sums(const arma::mat& matty){
+  return bmfuncs::col_sums(matty);
+}
+
+//[[Rcpp::export]] 
+arma::mat hat_alt(const arma::mat& X){ // svd
+  return bmfuncs::hat_alt(X);
+}
+
+//[[Rcpp::export]] 
+arma::mat hat(const arma::mat& X){ // inv_sympd
+  return bmfuncs::hat(X);
+}
+
+//[[Rcpp::export]] 
+arma::mat cube_mean(const arma::cube& X, int dim){
+  return bmfuncs::cube_mean(X, dim);
+}
+
+//[[Rcpp::export]] 
+arma::mat cube_sum(const arma::cube& X, int dim){
+  return bmfuncs::cube_sum(X, dim);
+}
+
+//[[Rcpp::export]] 
+arma::mat cube_prod(const arma::cube& x, int dim){
+  return bmfuncs::cube_prod(x, dim);
+}
+
+// Vector index to matrix subscripts
+// 
+// Get matrix subscripts from corresponding vector indices (both start from 0).
+// This is a utility function using Armadillo's ind2sub function.
+// @param index a vector of indices
+// @param m a matrix (only its size is important)
+//[[Rcpp::export]]
+arma::mat index_to_subscript(const arma::uvec& index, const arma::mat& m){
+  return bmfuncs::index_to_subscript(index, m);
+}
 
 //[[Rcpp::export]]
-double split_struct_ratio(arma::vec prop_split, arma::vec orig_split, int p, double param){
-  return bmfuncs::split_struct_ratio(prop_split, orig_split, p, param); 
+double gini(arma::vec& x, int p){
+  return bmfuncs::gini(x, p);
+}
+
+//[[Rcpp::export]] 
+arma::vec find_avail(const arma::vec& tied, int n){
+  return bmfuncs::find_avail(tied, n);
+}
+
+//[[Rcpp::export]] 
+arma::uvec find_first_unique(const arma::vec& x){
+  return bmfuncs::find_first_unique(x);
+}
+
+//[[Rcpp::export]] 
+arma::vec find_ties(const arma::vec& x){
+  return bmfuncs::find_ties(x);
+}
+
+//[[Rcpp::export]] 
+arma::vec pnorm01_vec(const arma::vec& x, int lower=1, int logged=0){
+  return bmfuncs::pnorm01_vec(x, lower, logged);
+}
+
+//[[Rcpp::export]] 
+arma::vec qnorm01_vec(const arma::vec& x, int lower=1, int logged=0){
+  return bmfuncs::qnorm01_vec(x, lower, logged);
+}
+
+//[[Rcpp::export]] 
+arma::vec log1p_vec(const arma::vec& x){
+  return bmfuncs::log1p_vec(x);
+}
+
+//[[Rcpp::export]] 
+arma::uvec usetdiff(const arma::uvec& x, const arma::uvec& y) {
+  return bmfuncs::usetdiff(x, y);
 }
 
 //[[Rcpp::export]]
