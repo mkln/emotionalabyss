@@ -21,6 +21,10 @@ splitsub_to_groupmask <- function(splits, p1, p2) {
     .Call(`_emotionalabyss_splitsub_to_groupmask`, splits, p1, p2)
 }
 
+splitsub_to_groupmask_bubbles <- function(splits, p1, p2, radius) {
+    .Call(`_emotionalabyss_splitsub_to_groupmask_bubbles`, splits, p1, p2, radius)
+}
+
 mat_unique <- function(A) {
     .Call(`_emotionalabyss_mat_unique`, A)
 }
@@ -159,6 +163,14 @@ multi_split_ones <- function(where, p) {
 
 multi_split_ones_v2 <- function(where, p) {
     .Call(`_emotionalabyss_multi_split_ones_v2`, where, p)
+}
+
+multi_split_nonnested <- function(prevmat, newsplits, p) {
+    .Call(`_emotionalabyss_multi_split_nonnested`, prevmat, newsplits, p)
+}
+
+Jcentercover <- function(J, radius) {
+    .Call(`_emotionalabyss_Jcentercover`, J, radius)
 }
 
 split_fix <- function(in_splits, stage) {

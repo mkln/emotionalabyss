@@ -143,6 +143,18 @@ arma::mat multi_split_ones_v2(const arma::vec& where, int p){
   return bmfuncs::multi_split_ones_v2(where, p);
 }
 
+//[[Rcpp::export]]
+arma::mat multi_split_nonnested(const arma::mat& prevmat, arma::vec newsplits, int p){
+  return bmfuncs::multi_split_nonnested(prevmat, newsplits,p);
+}
+
+// with center and radius, set to zero everything too far from all centers
+//[[Rcpp::export]]
+arma::mat Jcentercover(const arma::mat& J, double radius){
+  return bmfuncs::Jcentercover(J, radius);
+}
+
+  
 /*
 //[[Rcpp::export]] 
 arma::vec break_ones(int pre, int thisbig, int where, int post){

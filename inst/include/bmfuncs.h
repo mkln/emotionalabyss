@@ -724,6 +724,40 @@ inline arma::mat wavelettize(const arma::mat& J){
   return J;
 }
 
+inline double centerloc(const arma::vec& Jcol){
+  arma::vec locs = arma::conv_to<arma::vec>::from(arma::find(Jcol==1));
+  return arma::mean(locs);
+}
+
+inline arma::vec splits_to_centers(const arma::vec& bigsplits, int p){  
+  arma::vec splits_sorted = arma::sort(bigsplits);
+  arma::vec fullsplits = arma::unique(arma::join_vert(arma::join_vert(arma::zeros(1), splits_sorted+1), p*arma::ones(1)));
+  arma::vec lengths = arma::diff(fullsplits);
+  arma::vec centers = arma::zeros(splits_sorted.n_elem + 1);
+  for(int i=0; i<centers.n_elem; i++){
+    if(lengths(i)==1){
+      centers(i) = fullsplits(i);
+    } else {
+      centers(i) = fullsplits(i) + lengths(i)/2.0 - .5;
+    }
+  }
+  return centers;
+}
+
+
+inline arma::mat Jcentercover(const arma::mat& J, double radius){
+  radius += .5; // 
+  arma::mat Jnew = J;
+  for(unsigned int j=0; j<J.n_cols; j++){
+    double cloc = centerloc(J.col(j));
+    for(unsigned int i=0; i<J.n_rows; i++){
+      if( abs(i - cloc) > radius ){
+        Jnew(i, j) = 0;
+      }
+    }
+  }
+  return Jnew;
+}
 
 
 }

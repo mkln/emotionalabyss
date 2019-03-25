@@ -190,8 +190,38 @@ inline arma::mat splitsub_to_groupmask(arma::field<arma::mat> splits, int p1, in
           for(unsigned int r=0; r<relevant.n_rows; r++){
             distances(r) = pow(0.0+inde(0) - relevant(r,0), 2) + pow(0.0+ inde(1) - relevant(r,1), 2);
           }
-          splitted(inde(0), inde(1)) += (1+distances.index_min())*pow(10,l);
+          splitted(inde(0), inde(1)) += (1+distances.index_min())*pow(55,l);
         } 
+      }
+    }
+  }
+  return(splitted);
+}
+//with Bubbles-Voronoi tessellation
+inline arma::mat splitsub_to_groupmask_bubbles(arma::field<arma::mat> splits, int p1, int p2, double radius, bool circle=false){
+  // splits is a nsplit x 2 matrix
+  
+  arma::mat splitted = arma::zeros(p1, p2);
+  for(unsigned int l=0; l<splits.n_elem; l++){
+    for(unsigned int s=0; s<splits(l).n_rows; s++){
+      arma::vec distances = arma::ones(splits(l).n_rows);
+      int iloc = splits(l)(s,0);
+      int jloc = splits(l)(s,1);
+      int mini = max(0, (int)round(iloc-radius));
+      int maxi = min(p2, (int)round(iloc+radius));
+      int minj = max(0, (int)round(jloc-radius));
+      int maxj = min(p1, (int)round(jloc+radius));
+      //clog << mini << " " << maxi << " " << minj << " " << maxj << endl;
+      for(unsigned int i=mini; i<maxi; i++){
+        for(unsigned int j=minj; j<maxj; j++){
+          for(unsigned int r=0; r<splits(l).n_rows; r++){
+            distances(r) = pow(0.0+i-splits(l)(r,0), 2) + pow(0.0+j-splits(l)(r,1), 2);
+          }
+          int minfound = distances.index_min();
+          if((s == minfound) & (circle? (pow(i - iloc, 2) + pow(j - jloc, 2 ) < radius) : true) ){
+            splitted(i, j) = (1+s)*pow(55,l);
+          }
+        }
       }
     }
   }

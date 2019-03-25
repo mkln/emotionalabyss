@@ -67,6 +67,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// splitsub_to_groupmask_bubbles
+arma::mat splitsub_to_groupmask_bubbles(arma::field<arma::mat> splits, int p1, int p2, double radius);
+RcppExport SEXP _emotionalabyss_splitsub_to_groupmask_bubbles(SEXP splitsSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP radiusSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::field<arma::mat> >::type splits(splitsSEXP);
+    Rcpp::traits::input_parameter< int >::type p1(p1SEXP);
+    Rcpp::traits::input_parameter< int >::type p2(p2SEXP);
+    Rcpp::traits::input_parameter< double >::type radius(radiusSEXP);
+    rcpp_result_gen = Rcpp::wrap(splitsub_to_groupmask_bubbles(splits, p1, p2, radius));
+    return rcpp_result_gen;
+END_RCPP
+}
 // mat_unique
 arma::vec mat_unique(const arma::mat& A);
 RcppExport SEXP _emotionalabyss_mat_unique(SEXP ASEXP) {
@@ -489,6 +503,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// multi_split_nonnested
+arma::mat multi_split_nonnested(const arma::mat& prevmat, arma::vec newsplits, int p);
+RcppExport SEXP _emotionalabyss_multi_split_nonnested(SEXP prevmatSEXP, SEXP newsplitsSEXP, SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type prevmat(prevmatSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type newsplits(newsplitsSEXP);
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(multi_split_nonnested(prevmat, newsplits, p));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Jcentercover
+arma::mat Jcentercover(const arma::mat& J, double radius);
+RcppExport SEXP _emotionalabyss_Jcentercover(SEXP JSEXP, SEXP radiusSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type J(JSEXP);
+    Rcpp::traits::input_parameter< double >::type radius(radiusSEXP);
+    rcpp_result_gen = Rcpp::wrap(Jcentercover(J, radius));
+    return rcpp_result_gen;
+END_RCPP
+}
 // split_fix
 arma::vec split_fix(const arma::field<arma::vec>& in_splits, int stage);
 RcppExport SEXP _emotionalabyss_split_fix(SEXP in_splitsSEXP, SEXP stageSEXP) {
@@ -873,6 +912,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_emotionalabyss_row_intersection", (DL_FUNC) &_emotionalabyss_row_intersection, 2},
     {"_emotionalabyss_row_difference", (DL_FUNC) &_emotionalabyss_row_difference, 2},
     {"_emotionalabyss_splitsub_to_groupmask", (DL_FUNC) &_emotionalabyss_splitsub_to_groupmask, 3},
+    {"_emotionalabyss_splitsub_to_groupmask_bubbles", (DL_FUNC) &_emotionalabyss_splitsub_to_groupmask_bubbles, 4},
     {"_emotionalabyss_mat_unique", (DL_FUNC) &_emotionalabyss_mat_unique, 1},
     {"_emotionalabyss_mask_oneval", (DL_FUNC) &_emotionalabyss_mask_oneval, 3},
     {"_emotionalabyss_mask_oneval_sum", (DL_FUNC) &_emotionalabyss_mask_oneval_sum, 3},
@@ -908,6 +948,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_emotionalabyss_multi_split_old", (DL_FUNC) &_emotionalabyss_multi_split_old, 3},
     {"_emotionalabyss_multi_split_ones", (DL_FUNC) &_emotionalabyss_multi_split_ones, 2},
     {"_emotionalabyss_multi_split_ones_v2", (DL_FUNC) &_emotionalabyss_multi_split_ones_v2, 2},
+    {"_emotionalabyss_multi_split_nonnested", (DL_FUNC) &_emotionalabyss_multi_split_nonnested, 3},
+    {"_emotionalabyss_Jcentercover", (DL_FUNC) &_emotionalabyss_Jcentercover, 2},
     {"_emotionalabyss_split_fix", (DL_FUNC) &_emotionalabyss_split_fix, 2},
     {"_emotionalabyss_stage_fix", (DL_FUNC) &_emotionalabyss_stage_fix, 1},
     {"_emotionalabyss_stretch_vec", (DL_FUNC) &_emotionalabyss_stretch_vec, 3},
