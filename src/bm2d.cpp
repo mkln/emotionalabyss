@@ -38,8 +38,13 @@ arma::mat splitsub_to_groupmask(arma::field<arma::mat> splits, int p1, int p2){
 }
 
 //[[Rcpp::export]]
-arma::mat splitsub_to_groupmask_bubbles(arma::field<arma::mat> splits, int p1, int p2, double radius){
-  return bm2d::splitsub_to_groupmask_bubbles(splits, p1, p2, radius);
+arma::mat splitsub_to_groupmask2(arma::field<arma::mat> splits, int p1, int p2){
+  return bm2d::splitsub_to_groupmask2(splits, p1, p2);
+}
+
+//[[Rcpp::export]]
+arma::mat splitsub_to_groupmask_bubbles(arma::field<arma::mat> splits, int p1, int p2, double radius, double dec=1.0, bool circled=true){
+  return bm2d::splitsub_to_groupmask_bubbles(splits, p1, p2, radius, dec, circled);
 }
 //[[Rcpp::export]]
 arma::vec mat_unique(const arma::mat& A){

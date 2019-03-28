@@ -148,8 +148,8 @@ inline arma::mat row_difference(const arma::mat& mat1, const arma::mat& mat2){
   }
 }
 
-//with H. voronoi tessellation
-inline arma::mat splitsub_to_groupmask(arma::field<arma::mat> splits, int p1, int p2){
+//with H. voronoi tessellation OLD
+inline arma::mat splitsub_to_groupmask2(arma::field<arma::mat> splits, int p1, int p2){
   // splits is a nsplit x 2 matrix
   arma::vec distances = arma::ones(splits(0).n_rows);
   arma::mat splitted = arma::zeros(p1, p2);
@@ -165,8 +165,7 @@ inline arma::mat splitsub_to_groupmask(arma::field<arma::mat> splits, int p1, in
   }
   
   splits = bmfuncs::splits_augmentation(splits);
-  
-  //cout << splitted << endl;
+
   // other levels
   int lev = splits.n_elem;
   for(unsigned int l=1; l<splits.n_elem; l++){
@@ -190,38 +189,99 @@ inline arma::mat splitsub_to_groupmask(arma::field<arma::mat> splits, int p1, in
           for(unsigned int r=0; r<relevant.n_rows; r++){
             distances(r) = pow(0.0+inde(0) - relevant(r,0), 2) + pow(0.0+ inde(1) - relevant(r,1), 2);
           }
-          splitted(inde(0), inde(1)) += (1+distances.index_min())*pow(55,l);
-        } 
+          splitted(inde(0), inde(1)) += (1+distances.index_min()) * pow(55, l);
+        }
       }
     }
   }
   return(splitted);
 }
-//with Bubbles-Voronoi tessellation
-inline arma::mat splitsub_to_groupmask_bubbles(arma::field<arma::mat> splits, int p1, int p2, double radius, bool circle=false){
-  // splits is a nsplit x 2 matrix
   
+
+//with H. voronoi tessellation, new
+inline arma::mat splitsub_to_groupmask(arma::field<arma::mat> splits, int p1, int p2){
+  // splits is a nsplit x 2 matrix
+  arma::vec distances = arma::ones(splits(0).n_rows);
+  arma::mat splitted = arma::zeros(p1, p2);
+  // level 0
+  for(unsigned int i=0; i<p1; i++){
+    for(unsigned int j=0; j<p2; j++){
+      for(unsigned int s=0; s<splits(0).n_rows; s++){
+        distances(s) = pow(0.0+i-splits(0)(s,0), 2) + pow(0.0+j-splits(0)(s,1), 2);
+      }
+      //clog << distances << endl;
+      splitted(i, j) = distances.index_min();
+    } 
+  }
+  
+  // other levels
+  int lev = splits.n_elem;
+  for(unsigned int l=1; l<splits.n_elem; l++){
+    // subset the search on the points in the groupmask that
+    // belong to the same group in the previous level
+    int splits_at_prev_lev = splits(l-1).n_rows;
+    // loop over possible values of previous levels
+    for(unsigned int s=0; s<splits_at_prev_lev; s++){
+      // for each split at this level,
+      // subset matrix elements with same value of split
+      arma::uvec locs = arma::find(splitted == splitted( splits(l-1)(s,0), splits(l-1)(s,1) ));
+      // relevant splits are only those that are also in the same area
+      arma::mat all_locs_subs = arma::conv_to<arma::mat>::from(arma::ind2sub(arma::size(splitted), locs));
+      arma::mat relevant = row_intersection(all_locs_subs.t(), splits(l));
+      // distance of subset points from all relevant splits at this level
+      arma::mat distances = arma::ones(relevant.n_rows);
+      if(distances.n_elem > 0){
+        for(unsigned int i=0; i<locs.n_elem; i++){ // like for i, for j, but vectorized
+          arma::uvec inde = arma::ind2sub(arma::size(splitted), locs(i));
+          for(unsigned int r=0; r<relevant.n_rows; r++){
+            distances(r) = pow(0.0+inde(0) - relevant(r,0), 2) + pow(0.0+ inde(1) - relevant(r,1), 2);
+          }
+          splitted(inde(0), inde(1)) += (1+distances.index_min()) * pow(55, l);
+        }
+      }
+    }
+  }
+  return(splitted);
+}
+
+//with Bubbles-Voronoi tessellation
+inline arma::mat splitsub_to_groupmask_bubbles(arma::field<arma::mat> splits, int p1, int p2, 
+                                               double radius_in, double dec=1, bool circle=true){
+  double radius = radius_in;
   arma::mat splitted = arma::zeros(p1, p2);
   for(unsigned int l=0; l<splits.n_elem; l++){
-    for(unsigned int s=0; s<splits(l).n_rows; s++){
-      arma::vec distances = arma::ones(splits(l).n_rows);
-      int iloc = splits(l)(s,0);
-      int jloc = splits(l)(s,1);
-      int mini = max(0, (int)round(iloc-radius));
-      int maxi = min(p2, (int)round(iloc+radius));
-      int minj = max(0, (int)round(jloc-radius));
-      int maxj = min(p1, (int)round(jloc+radius));
-      //clog << mini << " " << maxi << " " << minj << " " << maxj << endl;
-      for(unsigned int i=mini; i<maxi; i++){
-        for(unsigned int j=minj; j<maxj; j++){
-          for(unsigned int r=0; r<splits(l).n_rows; r++){
-            distances(r) = pow(0.0+i-splits(l)(r,0), 2) + pow(0.0+j-splits(l)(r,1), 2);
-          }
-          int minfound = distances.index_min();
-          if((s == minfound) & (circle? (pow(i - iloc, 2) + pow(j - jloc, 2 ) < radius) : true) ){
-            splitted(i, j) = (1+s)*pow(55,l);
+    if(splits(l).n_rows != 0){
+      radius = dec*(splits.n_elem - l)*radius_in;
+      for(unsigned int s=0; s<splits(l).n_rows; s++){
+        arma::vec distances = arma::ones(splits(l).n_rows);
+        int iloc = splits(l)(s,0);
+        int jloc = splits(l)(s,1);
+        int mini = max(0, (int)round(iloc-radius));
+        int maxi = min(p2, (int)round(iloc+radius));
+        int minj = max(0, (int)round(jloc-radius));
+        int maxj = min(p1, (int)round(jloc+radius));
+        //clog << mini << " " << maxi << " " << minj << " " << maxj << endl;
+        //arma::mat newsplitted = splitted;
+        for(unsigned int i=mini; i<maxi; i++){
+          for(unsigned int j=minj; j<maxj; j++){
+            for(unsigned int r=0; r<splits(l).n_rows; r++){
+              distances(r) = pow(0.0+i-splits(l)(r,0), 2) + pow(0.0+j-splits(l)(r,1), 2);
+            }
+            int minfound = distances.index_min();
+            if((s == minfound)  
+                 //& (splitted(i,j)==splitted(iloc,jloc))
+                 ){
+              if(circle){
+                if(pow(pow( abs(0.0 + i - iloc), 2) + pow( abs(0.0 +j - jloc), 2 ), .5) < radius){
+                   splitted(i, j) += (1+s) * pow(55, l);
+                }
+              } else {
+                splitted(i, j) += (1+s) * pow(55, l);
+              }
+            } 
           }
         }
+        //splitted = newsplitted;
       }
     }
   }

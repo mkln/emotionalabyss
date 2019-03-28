@@ -67,9 +67,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// splitsub_to_groupmask2
+arma::mat splitsub_to_groupmask2(arma::field<arma::mat> splits, int p1, int p2);
+RcppExport SEXP _emotionalabyss_splitsub_to_groupmask2(SEXP splitsSEXP, SEXP p1SEXP, SEXP p2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::field<arma::mat> >::type splits(splitsSEXP);
+    Rcpp::traits::input_parameter< int >::type p1(p1SEXP);
+    Rcpp::traits::input_parameter< int >::type p2(p2SEXP);
+    rcpp_result_gen = Rcpp::wrap(splitsub_to_groupmask2(splits, p1, p2));
+    return rcpp_result_gen;
+END_RCPP
+}
 // splitsub_to_groupmask_bubbles
-arma::mat splitsub_to_groupmask_bubbles(arma::field<arma::mat> splits, int p1, int p2, double radius);
-RcppExport SEXP _emotionalabyss_splitsub_to_groupmask_bubbles(SEXP splitsSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP radiusSEXP) {
+arma::mat splitsub_to_groupmask_bubbles(arma::field<arma::mat> splits, int p1, int p2, double radius, double dec, bool circled);
+RcppExport SEXP _emotionalabyss_splitsub_to_groupmask_bubbles(SEXP splitsSEXP, SEXP p1SEXP, SEXP p2SEXP, SEXP radiusSEXP, SEXP decSEXP, SEXP circledSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -77,7 +90,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type p1(p1SEXP);
     Rcpp::traits::input_parameter< int >::type p2(p2SEXP);
     Rcpp::traits::input_parameter< double >::type radius(radiusSEXP);
-    rcpp_result_gen = Rcpp::wrap(splitsub_to_groupmask_bubbles(splits, p1, p2, radius));
+    Rcpp::traits::input_parameter< double >::type dec(decSEXP);
+    Rcpp::traits::input_parameter< bool >::type circled(circledSEXP);
+    rcpp_result_gen = Rcpp::wrap(splitsub_to_groupmask_bubbles(splits, p1, p2, radius, dec, circled));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -912,7 +927,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_emotionalabyss_row_intersection", (DL_FUNC) &_emotionalabyss_row_intersection, 2},
     {"_emotionalabyss_row_difference", (DL_FUNC) &_emotionalabyss_row_difference, 2},
     {"_emotionalabyss_splitsub_to_groupmask", (DL_FUNC) &_emotionalabyss_splitsub_to_groupmask, 3},
-    {"_emotionalabyss_splitsub_to_groupmask_bubbles", (DL_FUNC) &_emotionalabyss_splitsub_to_groupmask_bubbles, 4},
+    {"_emotionalabyss_splitsub_to_groupmask2", (DL_FUNC) &_emotionalabyss_splitsub_to_groupmask2, 3},
+    {"_emotionalabyss_splitsub_to_groupmask_bubbles", (DL_FUNC) &_emotionalabyss_splitsub_to_groupmask_bubbles, 6},
     {"_emotionalabyss_mat_unique", (DL_FUNC) &_emotionalabyss_mat_unique, 1},
     {"_emotionalabyss_mask_oneval", (DL_FUNC) &_emotionalabyss_mask_oneval, 3},
     {"_emotionalabyss_mask_oneval_sum", (DL_FUNC) &_emotionalabyss_mask_oneval_sum, 3},

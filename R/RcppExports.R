@@ -21,8 +21,12 @@ splitsub_to_groupmask <- function(splits, p1, p2) {
     .Call(`_emotionalabyss_splitsub_to_groupmask`, splits, p1, p2)
 }
 
-splitsub_to_groupmask_bubbles <- function(splits, p1, p2, radius) {
-    .Call(`_emotionalabyss_splitsub_to_groupmask_bubbles`, splits, p1, p2, radius)
+splitsub_to_groupmask2 <- function(splits, p1, p2) {
+    .Call(`_emotionalabyss_splitsub_to_groupmask2`, splits, p1, p2)
+}
+
+splitsub_to_groupmask_bubbles <- function(splits, p1, p2, radius, dec = 1.0, circled = TRUE) {
+    .Call(`_emotionalabyss_splitsub_to_groupmask_bubbles`, splits, p1, p2, radius, dec, circled)
 }
 
 mat_unique <- function(A) {

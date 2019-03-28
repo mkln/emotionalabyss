@@ -30,7 +30,7 @@ inline double logdet(const arma::mat& X){
 inline double m0mvnorm_dens(const arma::vec& x, const arma::mat& Si){
   int p = Si.n_cols;
   double normcore =  arma::conv_to<double>::from(x.t() * Si * x);
-  double normconst = - p/2.0 * log(2*M_PI) + .5 * log(arma::det(Si));
+  double normconst = - p/2.0 * log(2*M_PI) + .5 * logdet(Si);
   return normconst - 0.5 * (normcore);
 }
 
@@ -46,6 +46,8 @@ inline double clm_marglik(const arma::vec& y, const arma::mat& Mi,
   double normcore = -(a+n/2.0) * log(b + 0.5 * arma::conv_to<double>::from(y.t() * y - muSimu));
   return const1 + const2 + normcore;
 }
+
+
 
 class BayesLM{
 public:
@@ -100,11 +102,12 @@ public:
   
   void posterior();
   void beta_sample();
+  void sigmasq_sample();
   void lambda_update(double);
-  void chg_y(arma::vec&);
+  void chg_y(const arma::vec&, bool);
   
   double calc_logpost();
-
+  
   BayesLM();
   BayesLM(const arma::vec&, const arma::mat&, bool);
   BayesLM(arma::vec, arma::mat, double);
@@ -112,8 +115,8 @@ public:
   BayesLM(const arma::vec&, const arma::mat&, double, bool, double, double);
   BayesLM(arma::vec, arma::mat, arma::mat);
   BayesLM(const arma::vec&, const arma::mat&, 
-          const arma::vec&, double, double, 
-          double, bool, double, double);
+               const arma::vec&, double, double, 
+               double, bool, double, double);
   
 };
 
@@ -122,8 +125,8 @@ inline BayesLM::BayesLM(){
 }
 
 inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX, 
-                        double lambda_in = 1, bool fixs=false,
-                        double sigmasqin=1.0, double gin=-1){
+                                  double lambda_in = 1, bool fixs=false,
+                                  double sigmasqin=1.0, double gin=-1){
   fix_sigma = fixs;
   y = yy;
   X = XX;
@@ -166,7 +169,7 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX,
   } else { 
     yty = 0.0;
     mutSimu = 0.0;
-    alpha_n = 0.0;
+    alpha_n = alpha + n/2.0;
     beta_n = 0.0;
     sigmasq = sigmasqin;
     Px = X * Sigma * X.t(); 
@@ -176,10 +179,10 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX,
 }
 
 inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX, 
-                        const arma::vec& mm, //prior mean
-                        double ain, double bin,
-                        double lambda_in = 1, bool fixs=false,
-                        double sigmasqin=1.0, double gin=-1){
+                                  const arma::vec& mm, //prior mean
+                                  double ain, double bin,
+                                  double lambda_in = 1, bool fixs=false,
+                                  double sigmasqin=1.0, double gin=-1){
   fix_sigma = fixs;
   y = yy;
   X = XX;
@@ -208,26 +211,29 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX,
   
   alpha = ain; // parametrization: a = mean^2 / variance + 2
   beta = bin;  //                  b = (mean^3 + mean*variance) / variance
+  alpha_n = alpha + n/2.0;
   
   inv_var_post = Mi + XtX;
   Sigma = arma::inv_sympd(inv_var_post);
   mu = Sigma * (Mi*m + X.t()*ycenter);
   
+  Px = X * Sigma * X.t(); 
+  
   if(!fix_sigma) { 
     yty = arma::conv_to<double>::from(ycenter.t()*ycenter);
     mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
-    alpha_n = alpha + n/2.0;
     beta_n = beta + 0.5*(mtMim - mutSimu + yty);
     sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
   } else { 
     yty = 0.0;
     mutSimu = 0.0;
-    alpha_n = 0.0;
+    alpha_n = alpha + n/2.0;
     beta_n = 0.0;
     sigmasq = sigmasqin;
-    Px = X * Sigma * X.t(); 
+    
   }
   b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
+  
   reg_mean = icept + X * b;
   logpost = calc_logpost();
 }
@@ -348,7 +354,7 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX, double lambda_
   } else { 
     yty = 0.0;
     mutSimu = 0.0;
-    alpha_n = 0.0;
+    alpha_n = alpha + n/2.0;
     beta_n = 0.0;
     sigmasq = 1.0;
     Px = X * Sigma * X.t();
@@ -397,7 +403,7 @@ inline BayesLM::BayesLM(arma::vec yy, arma::mat XX, arma::mat MM){
   } else { 
     yty = 0.0;
     mutSimu = 0.0;
-    alpha_n = 0.0;
+    alpha_n = alpha + n/2.0;
     beta_n = 0.0;
     sigmasq = 1.0;
     Px = X * Sigma * X.t(); 
@@ -450,29 +456,37 @@ inline void BayesLM::beta_sample(){
   //b = bmrandom::rndpp_mvt(1, mu, beta_n/alpha_n * Sigma/lambda, 2*alpha_n).t(); //(bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq/lambda)).row(0).t();
 }
 
-inline void BayesLM::chg_y(arma::vec& yy){
+inline void BayesLM::sigmasq_sample(){
+  fix_sigma = false;
+  yty = arma::conv_to<double>::from(ycenter.t()*ycenter);
+  mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
+  alpha_n = alpha + n/2.0;
+  beta_n = beta + 0.5*(mtMim - mutSimu + yty);
+  sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
+}
+
+inline void BayesLM::chg_y(const arma::vec& yy, bool fixsigma){
+  fix_sigma = fixsigma;
   y = yy;
   icept = arma::mean(y);
   ycenter = y - icept;
-  yty = arma::conv_to<double>::from(ycenter.t()*ycenter);
   mu = Sigma * (Mi*m + X.t()*ycenter);
   
   if(!fix_sigma){
+    yty = arma::conv_to<double>::from(ycenter.t()*ycenter);
     mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
     beta_n = beta + 0.5*(mtMim - mutSimu + yty);
-    
     sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
-    b = bmrandom::rndpp_mvt(1, mu, beta_n/alpha_n * Sigma, 2*alpha_n).t(); 
-  } else {
-    b = (bmrandom::rndpp_mvnormal2(1, mu, Sigma*sigmasq)).row(0).t();
+    //clog << mtMim << " " << yty << " " << mutSimu << " " << alpha_n << " " << sigmasq << endl;
   }
+  b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
   reg_mean = icept + X * b;
   logpost = calc_logpost();
 }
 
-
 inline double BayesLM::calc_logpost(){
-  if(fix_sigma){
+  if(true){
+    //if(fix_sigma){
     //clog << "calc. " << arma::size(X) << " " << arma::size(m) << "  " << arma::size(y) << endl;
     //clog << arma::size(y - X*m) << " " << logdet(Mi) << " " << logdet(inv_var_post) << " " << mutSimu << endl;
     logpost = m0mvnorm_dens(ycenter - X*m, 1.0/sigmasq * (In - Px)); // invgamma density cancels when taking ratios
@@ -482,6 +496,7 @@ inline double BayesLM::calc_logpost(){
     return logpost;
   }
 }
+
 
 class BayesLMg{
 public:
