@@ -97,7 +97,7 @@ public:
   
   arma::mat inv_var_post;
   
-  arma::vec reg_mean;
+  arma::vec linear_predictor;
   double logpost;
   
   void posterior();
@@ -175,7 +175,7 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX,
     Px = X * Sigma * X.t(); 
   }
   b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
-  reg_mean = icept + X * b;
+  linear_predictor = icept + X * b;
 }
 
 inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX, 
@@ -234,7 +234,7 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX,
   }
   b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
   
-  reg_mean = icept + X * b;
+  linear_predictor = icept + X * b;
   logpost = calc_logpost();
 }
 
@@ -272,7 +272,7 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX, bool fixs=fals
   Px = X * Sigma * X.t(); 
   b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
   
-  reg_mean = icept + X * b;
+  linear_predictor = icept + X * b;
   logpost = calc_logpost();
 }
 
@@ -313,7 +313,7 @@ inline BayesLM::BayesLM(arma::vec yy, arma::mat XX, double lambda_in = 1){
   
   sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
   b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
-  reg_mean = icept + X * b;
+  linear_predictor = icept + X * b;
   logpost = calc_logpost();
 }
 
@@ -360,7 +360,7 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX, double lambda_
     Px = X * Sigma * X.t();
   }
   b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
-  reg_mean = icept + X * b;
+  linear_predictor = icept + X * b;
   logpost = calc_logpost();
 }
 
@@ -410,7 +410,7 @@ inline BayesLM::BayesLM(arma::vec yy, arma::mat XX, arma::mat MM){
     b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
   }
   
-  reg_mean = icept + X * b;
+  linear_predictor = icept + X * b;
   logpost = calc_logpost();
 }
 
@@ -442,7 +442,7 @@ inline void BayesLM::lambda_update(double lambda_new){
     b = (bmrandom::rndpp_mvnormal2(1, mu, Sigma*sigmasq)).row(0).t();
   }
   
-  reg_mean = X * b;
+  linear_predictor = X * b;
   logpost = calc_logpost();
 }
 
@@ -480,7 +480,7 @@ inline void BayesLM::chg_y(const arma::vec& yy, bool fixsigma){
     //clog << mtMim << " " << yty << " " << mutSimu << " " << alpha_n << " " << sigmasq << endl;
   }
   b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
-  reg_mean = icept + X * b;
+  linear_predictor = icept + X * b;
   logpost = calc_logpost();
 }
 
@@ -537,7 +537,7 @@ public:
   arma::mat inv_var_post;
   
   arma::vec xb;
-  arma::vec reg_mean;
+  arma::vec linear_predictor;
   
   double yPxy;
   double marglik;
@@ -642,7 +642,7 @@ inline void BayesLMg::sample_beta(){
   b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
   xb = X*b;
   icept = arma::mean(y-xb);
-  reg_mean = icept + xb;
+  linear_predictor = icept + xb;
 }
 
 inline void BayesLMg::sample_sigmasq(){
