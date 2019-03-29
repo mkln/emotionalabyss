@@ -578,7 +578,7 @@ inline BayesLMg::BayesLMg(const arma::vec& yy, const arma::mat& Xin, double gin,
     XtX = X.t() * X;
     
     In = arma::eye(n, n);
-    Mi = 1.0/g * XtX + arma::eye(p,p)*1;
+    Mi = 1.0/g * XtX + arma::eye(p,p)*.01;
     
     inv_var_post = Mi + XtX;
     Sigma = arma::inv_sympd(inv_var_post);
@@ -612,7 +612,7 @@ inline void BayesLMg::change_X(const arma::mat& Xin){
   
   if(sampling_mcmc){
     XtX = X.t() * X;
-    Mi = 1.0/g * XtX + arma::eye(p,p)*1;
+    Mi = 1.0/g * XtX + arma::eye(p,p)*.01;
     inv_var_post = Mi + XtX;
     Sigma = arma::inv_sympd(inv_var_post);
     mu = Sigma * X.t() * ycenter;
