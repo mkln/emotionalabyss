@@ -84,8 +84,8 @@ public:
   arma::mat Mi;
   double mtMim;
   
-  arma::mat Ip;
-  arma::mat In;
+  arma::sp_mat Ip;
+  arma::sp_mat In;
   // posterior
   
   double alpha_n;
@@ -102,9 +102,11 @@ public:
   
   void posterior();
   void beta_sample();
-  void sigmasq_sample();
+  void sigmasq_sample(bool);
   void lambda_update(double);
+  void get_invgamma_post();
   void chg_y(const arma::vec&, bool);
+  void chg_X(const arma::mat&, bool, double, bool);
   
   double calc_logpost();
   
@@ -122,6 +124,20 @@ public:
 
 inline BayesLM::BayesLM(){
   
+}
+
+inline void BayesLM::get_invgamma_post(){
+  yty = arma::conv_to<double>::from(ycenter.t()*ycenter);
+  mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
+  alpha_n = alpha + n/2.0;
+  beta_n = beta + 0.5*(mtMim - mutSimu + yty);
+}
+
+inline void BayesLM::sigmasq_sample(bool calc_param=true){
+  if(calc_param){
+    get_invgamma_post();
+  }
+  sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
 }
 
 inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX, 
@@ -145,8 +161,8 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX,
   icept = arma::mean(y);
   ycenter = y - icept;
   
-  In = arma::eye(n,n);
-  Ip = arma::eye(p,p);
+  In = arma::speye(n,n);
+  Ip = arma::speye(p,p);
   m = arma::zeros(p);
   //M = n*XtXi;
   //clog << lambda << endl;
@@ -161,11 +177,7 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX,
   mu = Sigma * (Mi*m + X.t()*ycenter);
   
   if(!fix_sigma) { 
-    yty = arma::conv_to<double>::from(ycenter.t()*ycenter);
-    mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
-    alpha_n = alpha + n/2.0;
-    beta_n = beta + 0.5*(mtMim - mutSimu + yty);
-    sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
+    sigmasq_sample(true);
   } else { 
     yty = 0.0;
     mutSimu = 0.0;
@@ -201,8 +213,8 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX,
   icept = arma::mean(y);
   ycenter = y - icept;
   
-  Ip = arma::eye(p,p);
-  In = arma::eye(n,n);
+  Ip = arma::speye(p,p);
+  In = arma::speye(n,n);
   m = mm;
   //M = n*XtXi;
   //clog << lambda << endl;
@@ -220,10 +232,7 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX,
   Px = X * Sigma * X.t(); 
   
   if(!fix_sigma) { 
-    yty = arma::conv_to<double>::from(ycenter.t()*ycenter);
-    mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
-    beta_n = beta + 0.5*(mtMim - mutSimu + yty);
-    sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
+    sigmasq_sample(true);
   } else { 
     yty = 0.0;
     mutSimu = 0.0;
@@ -257,7 +266,7 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX, bool fixs=fals
   m = arma::zeros(p);
   //M = n*XtXi;
   g = log(1.0+n);
-  Mi = 1.0/g * XtX + arma::eye(p,p) * lambda;
+  Mi = 1.0/g * XtX + arma::speye(p,p) * lambda;
   mtMim = 0.0; //arma::conv_to<double>::from(m.t()*Mi*m);
   
   alpha = 0.0;
@@ -296,7 +305,7 @@ inline BayesLM::BayesLM(arma::vec yy, arma::mat XX, double lambda_in = 1){
   m = arma::zeros(p);
   //M = n*XtXi;
   g = log(1.0+n); 
-  Mi = 1.0/g * XtX + arma::eye(p,p) * lambda;
+  Mi = 1.0/g * XtX + arma::speye(p,p) * lambda;
   mtMim = 0.0; //arma::conv_to<double>::from(m.t()*Mi*m);
   
   alpha = 2.1; // parametrization: a = mean^2 / variance + 2
@@ -330,7 +339,7 @@ inline BayesLM::BayesLM(const arma::vec& yy, const arma::mat& XX, double lambda_
   icept = arma::mean(y);
   ycenter = y - icept;
   
-  Ip = arma::eye(p,p);
+  Ip = arma::speye(p,p);
   m = arma::zeros(p);
   //M = n*XtXi;
   //clog << lambda << endl;
@@ -446,46 +455,49 @@ inline void BayesLM::lambda_update(double lambda_new){
   logpost = calc_logpost();
 }
 
-inline void BayesLM::posterior(){
-  sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
-  b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq/lambda)).row(0).t();
-}
-
 inline void BayesLM::beta_sample(){
   b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
+  linear_predictor = icept + X * b;
   //b = bmrandom::rndpp_mvt(1, mu, beta_n/alpha_n * Sigma/lambda, 2*alpha_n).t(); //(bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq/lambda)).row(0).t();
 }
 
-inline void BayesLM::sigmasq_sample(){
-  fix_sigma = false;
-  yty = arma::conv_to<double>::from(ycenter.t()*ycenter);
-  mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
-  alpha_n = alpha + n/2.0;
-  beta_n = beta + 0.5*(mtMim - mutSimu + yty);
-  sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
-}
-
-inline void BayesLM::chg_y(const arma::vec& yy, bool fixsigma){
-  fix_sigma = fixsigma;
-  y = yy;
-  icept = arma::mean(y);
-  ycenter = y - icept;
-  mu = Sigma * (Mi*m + X.t()*ycenter);
-  
-  if(!fix_sigma){
-    yty = arma::conv_to<double>::from(ycenter.t()*ycenter);
-    mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
-    beta_n = beta + 0.5*(mtMim - mutSimu + yty);
-    sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
-    //clog << mtMim << " " << yty << " " << mutSimu << " " << alpha_n << " " << sigmasq << endl;
+inline void BayesLM::chg_X(const arma::mat& XX, bool fixsigma, double sigmasqin=-1.0, bool sample_beta = false){
+  X = XX;
+  if(p != X.n_cols){
+    clog << "Proposed a change in n. columns of X. Not implemented yet." << endl;
+    throw 1;
   }
-  b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
-  linear_predictor = icept + X * b;
+  if((fixsigma == true) & (sigmasqin == -1.0)){
+    clog << "Input sigmasq=-1.0 (the default) but fixing sigma. " << endl;
+  }
+  
+  XtX = X.t() * X;
+  Mi = 1.0/g * XtX + Ip * lambda;
+  mtMim = arma::conv_to<double>::from(m.t()*Mi*m);
+  inv_var_post = Mi + XtX;
+  Sigma = arma::inv_sympd(inv_var_post);
+  mu = Sigma * (Mi*m + X.t()*ycenter);
+  Px = X * Sigma * X.t(); 
+  
+  if(!fix_sigma) { 
+    sigmasq_sample(true);
+  } else { 
+    yty = 0.0;
+    mutSimu = 0.0;
+    alpha_n = alpha + n/2.0;
+    beta_n = 0.0;
+    sigmasq = sigmasqin;
+    
+  }
+  if(sample_beta){
+    beta_sample();
+  }
+  
   logpost = calc_logpost();
 }
 
 inline double BayesLM::calc_logpost(){
-  if(true){
+  if(false){
     //if(fix_sigma){
     //clog << "calc. " << arma::size(X) << " " << arma::size(m) << "  " << arma::size(y) << endl;
     //clog << arma::size(y - X*m) << " " << logdet(Mi) << " " << logdet(inv_var_post) << " " << mutSimu << endl;
@@ -577,8 +589,8 @@ inline BayesLMg::BayesLMg(const arma::vec& yy, const arma::mat& Xin, double gin,
   if(sampling_mcmc){
     XtX = X.t() * X;
     
-    In = arma::eye(n, n);
-    Mi = 1.0/g * XtX + arma::eye(p,p)*.01;
+    In = arma::speye(n, n);
+    Mi = 1.0/g * XtX + arma::speye(p,p)*.01;
     
     inv_var_post = Mi + XtX;
     Sigma = arma::inv_sympd(inv_var_post);
@@ -612,7 +624,7 @@ inline void BayesLMg::change_X(const arma::mat& Xin){
   
   if(sampling_mcmc){
     XtX = X.t() * X;
-    Mi = 1.0/g * XtX + arma::eye(p,p)*.01;
+    Mi = 1.0/g * XtX + arma::speye(p,p)*.01;
     inv_var_post = Mi + XtX;
     Sigma = arma::inv_sympd(inv_var_post);
     mu = Sigma * X.t() * ycenter;
@@ -815,268 +827,6 @@ inline VarSelMCMC::VarSelMCMC(const arma::vec& yy, const arma::mat& XX, const ar
   }
   //clog << selprob << endl;
 }
-
-// univariate model y ~ N(mu, sigmasq)
-class NinvG_model{
-public:
-  // data
-  arma::vec y; // univariate, n observations
-  arma::vec x; // univariate, n observations
-  arma::vec ystd;
-  int n;
-  
-  // useful
-  //double xssq;
-  //double xssqi;
-  double yssq;
-  
-  bool fix_sigma; 
-  
-  // model for each obs: y = theta + e
-  // where e is Normal(0, sigmasq)
-  double theta;
-  double sigmasq;
-  //double lambda; //ridge
-  
-  // priors
-  
-  // inverse gamma for sigma
-  double alpha;
-  double beta;
-  
-  // b ~ N(m, sigmasq * kappa)
-  double m;
-  double kappa;
-  double msq_kappai;
-  
-  // posterior
-  double alpha_n;
-  double beta_n;
-  double mu;
-  double kappa_n;
-  
-  arma::vec iloglik;
-  double loglik;
-  
-  void posterior();
-  void ystdize();
-  void sigmasq_sample();
-  void theta_sample();
-  void iloglik_calc();
-  
-  bool sigma_is_known;
-  
-  //void lambda_update(double);
-  //void chg_y(arma::vec&);
-  //void chg_data(arma::vec&, arma::vec&);
-  
-  // y
-  NinvG_model(const arma::vec&, 
-              const arma::vec&, 
-              double, double, double);//, arma::vec);
-  
-  // y alpha, beta, kappa
-  //NinvG_model(arma::vec, arma::vec, double, double, double); 
-};
-
-inline double uninormal_loglik(double x, double m, double ssq){
-  return -.5 * log(2*M_PI*ssq) - .5/ssq * pow(x-m, 2);
-}
-
-inline double dinvgamma(double x, double a, double b){
-  return a * log(b) + (-1-a)* log(x) -b/x - log(tgamma(a));
-}
-
-inline NinvG_model::NinvG_model(const arma::vec& yy, 
-                         const arma::vec& xx,
-                         double alpha_in=2.0001,
-                         double beta_in=0.10001,
-                         double sigmasqfixed=-1.0){
-  y = yy;
-  //x = xx;
-  n = y.n_elem;
-  
-  if(sigmasqfixed==-1){
-    sigma_is_known = false;
-    sigmasq = 1.0;
-  } else {
-    sigma_is_known = true;
-    sigmasq = sigmasqfixed;
-  }
-  
-  
-  iloglik = arma::zeros(n); // observation loglikelihood at sampled values theta and sigmasq
-  //xssq = arma::conv_to<double>::from(x.t() * x);
-  //xssqi = 1.0/xssq;
-  
-  yssq = arma::conv_to<double>::from(y.t()*y);
-  
-  m = 0.0;//arma::mean(y);
-  kappa = n;//1.0;
-  msq_kappai = 0.0; 
-  
-  // meanv = beta / (alpha-1)
-  // variance = beta^2 / ((alpha-1)^2 * (alpha-2))
-  alpha =  alpha_in; // parametrization: alpha = meanv^2 / variance + 2
-  beta = beta_in; //alpha-1;  //       beta = (meanv^3 + meanv*variance) / variance
-  
-  kappa_n = 1.0/( 1.0/kappa + n);
-  mu = kappa_n * (m / kappa + arma::accu(y));
-  
-  
-  posterior();
-  ystdize();
-}
-
-inline void NinvG_model::iloglik_calc(){
-  //clog << alpha << " " << beta << endl;
-  for(unsigned int i=0; i<n; i++){
-    iloglik(i) = uninormal_loglik(y(i), theta, sigmasq);
-    //iloglik(i) = unistudent_marglik_reparam(y(i), kappa, alpha, beta);
-  }
-  loglik = arma::accu(iloglik) + 
-    uninormal_loglik(theta, m, sigmasq * kappa);
-  if(!sigma_is_known){
-    loglik += dinvgamma(sigmasq, alpha, beta);
-  } 
-}
-
-inline void NinvG_model::sigmasq_sample(){
-  alpha_n = alpha + n/2.0;
-  //beta_n = beta + 0.5*((pow(m, 2.0) - pow(mu, 2.0))/kappa + yssq - n*pow(mu, 2.0));
-  beta_n = beta + 0.5*(yssq - pow(mu,2)/kappa_n);
-  sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
-  //iloglik_calc();
-}
-
-inline void NinvG_model::theta_sample(){
-  theta = mu + pow(sigmasq * kappa_n, 0.5) * R::rnorm(0,1);
-  iloglik_calc();
-}
-
-inline void NinvG_model::posterior(){
-  if(!sigma_is_known){
-    sigmasq_sample(); 
-  }
-  theta_sample();
-}
-
-inline void NinvG_model::ystdize(){
-  if(sigma_is_known){
-    ystd = (y-theta);
-  } else {
-    ystd = (y-theta)/pow(sigmasq,.5);
-  }
-}
-
-
-// "histogram regression with fixed bins" ?
-class BayesHistReg{
-public:
-  arma::mat J_now;
-  int pj;
-  arma::vec y;
-  arma::vec ystd;
-  arma::vec x;
-  
-  arma::field<arma::vec> ygrouped;
-  arma::field<arma::vec> ystd_group;
-  arma::field<arma::vec> xgrouped;
-  
-  bool fixed_sigma;
-  //std::vector<NinvG_model> nig_pieces;
-  
-  arma::vec theta;
-  arma::vec sigmasq;
-  bool fix_sigma;
-  
-  arma::vec mu;
-  double alpha, beta;
-  arma::vec kappa_n;
-  arma::vec alpha_n;
-  arma::vec beta_n;
-  arma::vec sigmasq_postmean;
-  
-  arma::vec loglik_bycomp;
-  double loglik;
-  
-  arma::vec resid;
-  bool sigma_is_known;
-  
-  // y, x, Lj
-  BayesHistReg();
-  BayesHistReg(const arma::vec&, 
-                  const arma::vec&,
-                  const arma::mat&,
-                  double, double, double);
-};
-
-inline BayesHistReg::BayesHistReg(const arma::vec& yy, 
-                                 const arma::vec& xx,
-                                 const arma::mat& Ljin, 
-                                 double alpha_in=2.0001,
-                                 double beta_in=0.10001,
-                                 double sigmasqfixed=-1.0){
-  J_now = Ljin;
-  pj = Ljin.n_cols;
-  y = yy;
-  x = xx;
-  ystd = arma::zeros(y.n_elem);
-  
-  if(sigmasqfixed==-1){
-    sigma_is_known = false;
-    sigmasq = arma::zeros(pj);
-  } else {
-    sigma_is_known = true;
-    sigmasq = arma::zeros(pj) + sigmasqfixed;
-  }
-  
-  // sampled
-  theta = arma::zeros(pj);
-  
-  // posterior params
-  mu = arma::zeros(pj);
-  alpha = alpha_in;
-  beta = beta_in;
-  kappa_n = arma::zeros(pj);
-  alpha_n = arma::zeros(pj);
-  beta_n = arma::zeros(pj);
-  sigmasq_postmean = arma::zeros(pj);
-  loglik_bycomp = arma::zeros(pj);
-  
-  ygrouped = arma::field<arma::vec>(pj);
-  xgrouped = arma::field<arma::vec>(pj);
-  
-  //ystd_group = arma::field<arma::vec>(pj);
-  arma::uvec yselect;
-  for(unsigned int i=0; i<pj; i++){
-    //yselect = arma::find(J_now.col(i));
-    //ygrouped(i) = y.elem(yselect);
-    ygrouped(i) = y.subvec(J_now(0,i), J_now(1,i));
-    xgrouped(i) = x.subvec(J_now(0,i), J_now(1,i));
-    
-    //clog << "piece " << endl;
-    NinvG_model adding_piece(ygrouped(i), xgrouped(i), alpha, beta, sigmasqfixed);
-    //ystd.elem(yselect) = adding_piece.ystd;
-    ystd.subvec(J_now(0,i), J_now(1,i)) = adding_piece.ystd;
-    //nig_pieces.push_back(adding_piece);
-    
-    sigmasq(i) = adding_piece.sigmasq;
-    theta.subvec(i, i) = adding_piece.theta;
-    
-    //
-    //mu(i) = adding_piece.mu;
-    //kappa_n(i) = adding_piece.kappa_n;
-    //alpha_n(i) = adding_piece.alpha_n;
-    //beta_n(i) = adding_piece.beta_n;
-    //sigmasq_postmean(i) = adding_piece.beta_n / (adding_piece.alpha_n - 1);
-    loglik_bycomp(i) = adding_piece.loglik;
-  }
-  loglik = arma::accu(loglik_bycomp);
-  resid = ystd; //y - J_now * theta;
-  //clog << "NInvGMix module inited." << endl;
-}
-
 
 }
 

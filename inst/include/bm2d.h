@@ -257,13 +257,14 @@ inline arma::mat splitsub_to_groupmask_bubbles(arma::field<arma::mat> splits, in
         int iloc = splits(l)(s,0);
         int jloc = splits(l)(s,1);
         int mini = max(0, (int)round(iloc-radius));
-        int maxi = min(p2, (int)round(iloc+radius));
+        int maxi = min(p1, (int)round(iloc+radius));
         int minj = max(0, (int)round(jloc-radius));
-        int maxj = min(p1, (int)round(jloc+radius));
-        //clog << mini << " " << maxi << " " << minj << " " << maxj << endl;
+        int maxj = min(p2, (int)round(jloc+radius));
+        //clog << mini << " " << maxi << " " << minj << " " << maxj << " " << arma::size(splitted) << endl;
         //arma::mat newsplitted = splitted;
         for(unsigned int i=mini; i<maxi; i++){
           for(unsigned int j=minj; j<maxj; j++){
+            //clog << i << " " << j << endl;
             for(unsigned int r=0; r<splits(l).n_rows; r++){
               distances(r) = pow(0.0+i-splits(l)(r,0), 2) + pow(0.0+j-splits(l)(r,1), 2);
             }
@@ -272,6 +273,7 @@ inline arma::mat splitsub_to_groupmask_bubbles(arma::field<arma::mat> splits, in
                  //& (splitted(i,j)==splitted(iloc,jloc))
                  ){
               if(circle){
+                
                 if(pow(pow( abs(0.0 + i - iloc), 2) + pow( abs(0.0 +j - jloc), 2 ), .5) < radius){
                    splitted(i, j) += (1+s) * pow(55, l);
                 }
@@ -306,7 +308,11 @@ inline arma::mat mask_oneval(const arma::mat& A, const arma::mat& mask, int val)
 // the same group (2d coarsening operation)
 inline double mask_oneval_sum(const arma::mat& A, const arma::mat& mask, int val){
   arma::uvec uvals = arma::find(mask == val);
-  return(arma::accu(A.elem(uvals)));
+  if(arma::accu(pow(A.elem(uvals), 2)) == 0){
+    return(arma::datum::nan);
+  } else {
+    return(arma::accu(A.elem(uvals)));
+  }
 }
 
 // transform a regressor matrix to a vector using grouping mask as coarsening
@@ -327,14 +333,16 @@ inline arma::mat cube_to_mat_by_region(const arma::cube& C, const arma::mat& mas
   // cube is assumed dimension (p1, p2, n)
   int n_unique_regions = unique_regions.n_elem;
   arma::mat matricized_cube = arma::zeros(C.n_slices, n_unique_regions);
+  arma::uvec nonzero = arma::zeros<arma::uvec>(n_unique_regions);
   for(unsigned int r=0; r<n_unique_regions; r++){
     // every row in the cube is a matrix observation
     for(unsigned int i=0; i<C.n_slices; i++){
       // we transform every matrix into a vector by region
       matricized_cube(i,r) = mask_oneval_sum(C.slice(i), mask, unique_regions(r));
+      nonzero(r) = isnan(matricized_cube(i,r)) ? 0 : 1;
     }
   }
-  return(matricized_cube);
+  return(matricized_cube.cols(arma::find(nonzero)));
 }
 
 // given a vectorized beta vector, a vector of labels, and a grouping mask
