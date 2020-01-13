@@ -1,6 +1,10 @@
 
 
-clean_rebuild <- function(package_name){
+clean_rebuild <- function(package_name=NULL){
+  
+  if(is.null(package_name)){
+    package_name <- tail(strsplit(getwd(), "/")[[1]],1)
+  }
   
   temp_file <- sprintf("/tmp/%s_build_temp.RData", package_name)
   cat("save.image --> ", temp_file, "\n")
