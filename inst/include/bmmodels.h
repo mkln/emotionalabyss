@@ -464,7 +464,7 @@ inline void BayesLM::beta_sample(){
 }
 
 
-inline void BayesLM::chg_y(arma::vec& yy, bool fix_sigma){
+inline void BayesLM::chg_y(const arma::vec& yy, bool fix_sigma){
   y = yy;
   icept = arma::mean(y);
   ycenter = y - icept;
