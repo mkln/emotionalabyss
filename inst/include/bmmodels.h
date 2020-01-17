@@ -59,6 +59,8 @@ public:
   int p;
   bool fix_sigma;
   
+  arma::vec reg_mean;
+  
   // useful
   arma::mat XtX;
   arma::mat XtXi;
@@ -459,6 +461,26 @@ inline void BayesLM::beta_sample(){
   b = (bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq)).row(0).t();
   linear_predictor = icept + X * b;
   //b = bmrandom::rndpp_mvt(1, mu, beta_n/alpha_n * Sigma/lambda, 2*alpha_n).t(); //(bmrandom::rndpp_mvnormal(1, mu, Sigma*sigmasq/lambda)).row(0).t();
+}
+
+
+inline void BayesLM::chg_y(arma::vec& yy, bool fix_sigma){
+  y = yy;
+  icept = arma::mean(y);
+  ycenter = y - icept;
+  yty = arma::conv_to<double>::from(ycenter.t()*ycenter);
+  mu = Sigma * (Mi*m + X.t()*ycenter);
+  
+  if(!fix_sigma){
+    mutSimu = arma::conv_to<double>::from(mu.t()*(Mi + XtX)*mu);
+    beta_n = beta + 0.5*(mtMim - mutSimu + yty);
+    
+    sigmasq = 1.0/bmrandom::rndpp_gamma(alpha_n, 1.0/beta_n);
+    b = bmrandom::rndpp_mvt(1, mu, beta_n/alpha_n * Sigma/lambda, 2*alpha_n).t(); 
+  } else {
+    b = (bmrandom::rndpp_mvnormal2(1, mu, Sigma*sigmasq/lambda)).row(0).t();
+  }
+  reg_mean = icept + X * b;
 }
 
 inline void BayesLM::chg_X(const arma::mat& XX, bool fixsigma, double sigmasqin=-1.0, bool sample_beta = false){

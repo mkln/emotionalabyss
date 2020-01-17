@@ -6,9 +6,16 @@ clean_rebuild <- function(package_name=NULL){
     package_name <- tail(strsplit(getwd(), "/")[[1]],1)
   }
   
-  temp_file <- sprintf("/tmp/%s_build_temp.RData", package_name)
-  cat("save.image --> ", temp_file, "\n")
-  save.image(temp_file)
+  .First <- function(){
+    library_cmd <- sprintf("library(%s)", package_name)
+    cat(library_cmd, "\n")
+    library(package_name, character.only=T)
+  }
+  
+  list2env(list(".First"=.First), envir=.GlobalEnv)
+  
+  cat("save.image\n")
+  save.image(".RData")
   
   cat("Rcpp::compileAttributes()\n")
   Rcpp::compileAttributes()
@@ -20,14 +27,4 @@ clean_rebuild <- function(package_name=NULL){
   cat("startup::restart()\n")
   startup::restart()
   
-  cat("load", temp_file, "\n")
-  load(temp_file)
-  
-  rm_cmd <- sprintf("rm %s", temp_file)
-  cat(rm_cmd, "\n")
-  system(rm_cmd)
-  
-  library_cmd <- sprintf("library(%s)", package_name)
-  cat(library_cmd, "\n")
-  library(package_name, character.only=T)
 }
