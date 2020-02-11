@@ -1,6 +1,6 @@
 
 
-clean_rebuild <- function(package_name=NULL){
+clean_rebuild <- function(package_name=NULL, save=T){
   
   if(is.null(package_name)){
     package_name <- tail(strsplit(getwd(), "/")[[1]],1)
@@ -14,9 +14,11 @@ clean_rebuild <- function(package_name=NULL){
   
   list2env(list(".First"=.First), envir=.GlobalEnv)
   
-  cat("save.image\n")
-  save.image(".RData")
-  
+  if(save){
+    cat("save.image\n")
+    save.image(".RData")
+  }
+
   cat("Rcpp::compileAttributes()\n")
   Rcpp::compileAttributes()
   
